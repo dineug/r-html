@@ -9,6 +9,18 @@ export const closestElement = (
     ? target
     : closestElement(selector, el.getRootNode().host);
 
+export const getProviderElement = (
+  selector: string,
+  el: any,
+  target = el && el.closest(selector)
+): Element | null =>
+  !el || el === document || el === window
+    ? null
+    : target
+    ? target
+    : el.shadowRoot?.querySelector(selector) ??
+      closestElement(selector, el.getRootNode().host);
+
 export const queryShadowSelector = (selectors: string[], el: Element) =>
   selectors.length
     ? selectors.reduce<Element | null | undefined>((element, selector) => {
