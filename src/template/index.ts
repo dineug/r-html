@@ -3,8 +3,6 @@ import { TNode } from '@/template/node';
 export enum TemplateLiteralsType {
   html = 'html',
   svg = 'svg',
-  pug = 'pug',
-  pugSVG = 'pugSVG',
 }
 
 export interface TemplateLiterals {

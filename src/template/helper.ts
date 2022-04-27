@@ -19,7 +19,7 @@ import { TAttr, TAttrType, TNode } from '@/template/node';
 type AttrsTuple = [Array<TAttr>, Array<TAttr>];
 export type MarkerTuple = [string, number];
 
-const svgTypes = [TemplateLiteralsType.svg, TemplateLiteralsType.pugSVG];
+const svgTypes = [TemplateLiteralsType.svg];
 
 export const createMarker = (index: number) => `${MARKER}_${index}`;
 

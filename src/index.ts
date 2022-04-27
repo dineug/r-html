@@ -40,5 +40,4 @@ export type { Action, GeneratorActions, Reducer, Store } from '@/store';
 export { createAction, createStore } from '@/store';
 export { createSaga } from '@/store/saga';
 export { html, svg } from '@/template/html';
-export { pug, pugSVG } from '@/template/pug';
 export type { Emotion } from '@emotion/css/create-instance';
