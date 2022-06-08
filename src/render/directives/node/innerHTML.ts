@@ -1,16 +1,20 @@
+import {
+  NodeDirective,
+  NodeDirectiveCallback,
+  NodeDirectiveProps,
+} from '@/render/directives/nodeDirective';
 import { insertBeforeNode, rangeNodes, removeNode } from '@/render/helper';
-import { Operator, OperatorCallback, OperatorProps } from '@/render/operator';
 
-export function innerHTML(value: string): OperatorCallback {
+export function innerHTML(value: string): NodeDirectiveCallback {
   return () => [InnerHTML, [value]];
 }
 
-class InnerHTML extends Operator {
+class InnerHTML extends NodeDirective {
   #startNode: Comment;
   #endNode: Comment;
   #value: string | null = null;
 
-  constructor({ startNode, endNode }: OperatorProps) {
+  constructor({ startNode, endNode }: NodeDirectiveProps) {
     super();
     this.#startNode = startNode;
     this.#endNode = endNode;

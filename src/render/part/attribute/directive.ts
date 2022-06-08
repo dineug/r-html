@@ -1,16 +1,19 @@
 import { isArray, isFunction } from '@/helpers/is-type';
-import { Directive, DirectiveClass } from '@/render/directive';
+import {
+  AttributeDirective,
+  AttributeDirectiveClass,
+} from '@/render/directives/attributeDirective';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
 import { TAttr } from '@/template/node';
 
-const isDirective = (value: any) => value instanceof Directive;
+const isDirective = (value: any) => value instanceof AttributeDirective;
 
 export class DirectivePart implements Part {
   #node: any;
   #markerTuple: MarkerTuple;
-  #DirectiveClass: DirectiveClass | null = null;
-  #directive: Directive | null = null;
+  #DirectiveClass: AttributeDirectiveClass | null = null;
+  #directive: AttributeDirective | null = null;
 
   constructor(node: any, { name }: TAttr) {
     this.#node = node;

@@ -1,5 +1,9 @@
+import {
+  NodeDirective,
+  NodeDirectiveCallback,
+  NodeDirectiveProps,
+} from '@/render/directives/nodeDirective';
 import { insertBeforeNode, rangeNodes, removeNode } from '@/render/helper';
-import { Operator, OperatorCallback, OperatorProps } from '@/render/operator';
 import { Part } from '@/render/part';
 import { createPart, getPartType } from '@/render/part/node/text/helper';
 import { isTemplateLiterals } from '@/template/helper';
@@ -9,17 +13,17 @@ interface CachePart {
   fragment: DocumentFragment;
 }
 
-export function cache(value: any): OperatorCallback {
+export function cache(value: any): NodeDirectiveCallback {
   return () => [Cache, [value]];
 }
 
-class Cache extends Operator {
+class Cache extends NodeDirective {
   #startNode: Comment;
   #endNode: Comment;
   #cache = new Map<any, CachePart>();
   #value: any = null;
 
-  constructor({ startNode, endNode }: OperatorProps) {
+  constructor({ startNode, endNode }: NodeDirectiveProps) {
     super();
     this.#startNode = startNode;
     this.#endNode = endNode;

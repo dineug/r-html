@@ -1,10 +1,14 @@
 import {
+  NodeDirective,
+  NodeDirectiveCallback,
+  NodeDirectiveProps,
+} from '@/render/directives/nodeDirective';
+import {
   insertAfterNode,
   insertBeforeNode,
   rangeNodes,
   removeNode,
 } from '@/render/helper';
-import { Operator, OperatorCallback, OperatorProps } from '@/render/operator';
 import { Part } from '@/render/part';
 import { Action, difference } from '@/render/part/node/text/arrayDiff';
 import {
@@ -17,17 +21,17 @@ export function repeat<T>(
   list: T[],
   getKey: (value: T) => any,
   getResult: (value: T, index: number, array: T[]) => any
-): OperatorCallback {
+): NodeDirectiveCallback {
   list.length; // observable dependency
   return () => [Repeat, [list, getKey, getResult]];
 }
 
-class Repeat extends Operator {
+class Repeat extends NodeDirective {
   #startNode: Comment;
   #endNode: Comment;
   #parts: ItemPart[] = [];
 
-  constructor({ startNode, endNode }: OperatorProps) {
+  constructor({ startNode, endNode }: NodeDirectiveProps) {
     super();
     this.#startNode = startNode;
     this.#endNode = endNode;

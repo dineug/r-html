@@ -1,6 +1,9 @@
 import { isArray, isFunction, isNull, isUndefined } from '@/helpers/is-type';
+import {
+  NodeDirective,
+  NodeDirectiveClass,
+} from '@/render/directives/nodeDirective';
 import { rangeNodes, removeNode } from '@/render/helper';
-import { Operator, OperatorClass } from '@/render/operator';
 import { Part } from '@/render/part';
 import {
   createPart,
@@ -8,13 +11,13 @@ import {
   isPart,
 } from '@/render/part/node/text/helper';
 
-const isOperator = (value: any) => value instanceof Operator;
+const isDirective = (value: any) => value instanceof NodeDirective;
 
 export class FunctionPart implements Part {
   #startNode: Comment;
   #endNode: Comment;
-  #OperatorClass: OperatorClass | null = null;
-  #operator: Operator | null = null;
+  #DirectiveClass: NodeDirectiveClass | null = null;
+  #directive: NodeDirective | null = null;
   #part: Part | null = null;
 
   constructor(startNode: Comment, endNode: Comment) {
@@ -25,25 +28,25 @@ export class FunctionPart implements Part {
   commit(value: any) {
     if (!isFunction(value)) return;
 
-    const operatorTuple = value();
-    if (!isArray(operatorTuple)) return;
+    const directiveTuple = value();
+    if (!isArray(directiveTuple)) return;
 
-    const [OperatorClass, args] = operatorTuple;
-    if (!isFunction(OperatorClass) || !isArray(args)) return;
+    const [DirectiveClass, args] = directiveTuple;
+    if (!isFunction(DirectiveClass) || !isArray(args)) return;
 
-    if (this.#OperatorClass !== OperatorClass) {
+    if (this.#DirectiveClass !== DirectiveClass) {
       this.clear();
-      const operator = new OperatorClass({
+      const directive = new DirectiveClass({
         startNode: this.#startNode,
         endNode: this.#endNode,
       });
 
-      if (!isOperator(operator)) return;
-      this.#operator = operator;
-      this.#OperatorClass = OperatorClass;
+      if (!isDirective(directive)) return;
+      this.#directive = directive;
+      this.#DirectiveClass = DirectiveClass;
     }
 
-    const result = this.#operator?.render(args);
+    const result = this.#directive?.render(args);
     if (isUndefined(result)) return;
 
     const type = getPartType(result);
@@ -56,7 +59,7 @@ export class FunctionPart implements Part {
   }
 
   clear() {
-    this.#operator?.destroy();
+    this.#directive?.destroy();
     this.#part?.destroy && this.#part.destroy();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
   }

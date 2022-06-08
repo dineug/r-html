@@ -1,4 +1,4 @@
-import { Options } from '@/component/webComponent';
+import { Options } from '@/render/part/node/component/webComponent/helper';
 
 const supportsAdoptingStyleSheets =
   window.ShadowRoot &&

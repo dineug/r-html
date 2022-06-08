@@ -2,24 +2,24 @@ import { isEqual } from 'lodash-es';
 
 import { isNull } from '@/helpers/is-type';
 import {
-  Directive,
-  DirectiveCallback,
-  DirectiveProps,
-} from '@/render/directive';
+  AttributeDirective,
+  AttributeDirectiveCallback,
+  AttributeDirectiveProps,
+} from '@/render/directives/attributeDirective';
 import { isHTMLElement } from '@/render/helper';
 
 type Conditional = Record<string, any>;
 
-export function classMap(conditional: Conditional): DirectiveCallback {
+export function classMap(conditional: Conditional): AttributeDirectiveCallback {
   return () => [ClassMap, [conditional]];
 }
 
-class ClassMap extends Directive {
+class ClassMap extends AttributeDirective {
   #node: any;
   #classList: string[] | null = null;
   #conditional: Conditional = {};
 
-  constructor({ node }: DirectiveProps) {
+  constructor({ node }: AttributeDirectiveProps) {
     super();
     this.#node = node;
   }

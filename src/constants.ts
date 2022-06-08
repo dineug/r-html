@@ -23,3 +23,30 @@ export enum TAttrType {
   spread = 'spread',
   directive = 'directive',
 }
+
+export const BEFORE_MOUNT = Symbol('beforeMount');
+export const MOUNTED = Symbol('mounted');
+export const UNMOUNTED = Symbol('unmounted');
+export const BEFORE_FIRST_UPDATE = Symbol('beforeFirstUpdate');
+export const BEFORE_UPDATE = Symbol('beforeUpdate');
+export const FIRST_UPDATED = Symbol('firstUpdated');
+export const UPDATED = Symbol('updated');
+
+export const LIFECYCLE_NAMES: LifecycleName[] = [
+  BEFORE_MOUNT,
+  MOUNTED,
+  UNMOUNTED,
+  BEFORE_FIRST_UPDATE,
+  BEFORE_UPDATE,
+  FIRST_UPDATED,
+  UPDATED,
+];
+
+export type LifecycleName =
+  | typeof BEFORE_MOUNT
+  | typeof MOUNTED
+  | typeof UNMOUNTED
+  | typeof BEFORE_FIRST_UPDATE
+  | typeof FIRST_UPDATED
+  | typeof BEFORE_UPDATE
+  | typeof UPDATED;

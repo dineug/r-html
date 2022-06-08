@@ -2,26 +2,26 @@ import { isEqual } from 'lodash-es';
 
 import { isNull } from '@/helpers/is-type';
 import {
-  Directive,
-  DirectiveCallback,
-  DirectiveProps,
-} from '@/render/directive';
+  AttributeDirective,
+  AttributeDirectiveCallback,
+  AttributeDirectiveProps,
+} from '@/render/directives/attributeDirective';
 import { isHTMLElement } from '@/render/helper';
 
 type StyleRecord = Record<string, string>;
 
 export function styleMap(
   styleRecord: Partial<CSSStyleDeclaration>
-): DirectiveCallback {
+): AttributeDirectiveCallback {
   return () => [StyleMap, [styleRecord]];
 }
 
-class StyleMap extends Directive {
+class StyleMap extends AttributeDirective {
   #node: any;
   #styleRecord: Partial<CSSStyleDeclaration> = {};
   #origin: StyleRecord | null = null;
 
-  constructor({ node }: DirectiveProps) {
+  constructor({ node }: AttributeDirectiveProps) {
     super();
     this.#node = node;
   }
