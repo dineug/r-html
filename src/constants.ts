@@ -13,3 +13,13 @@ export const SPREAD_MARKER = `${PREFIX_SPREAD}${MARKER}`;
 export const markersRegexp = new RegExp(`${MARKER}_(\\d+)`, 'g');
 export const markerOnlyRegexp = new RegExp(`^${MARKER}_\\d+$`);
 export const nextLineRegexp = /^\n/;
+
+export enum TAttrType {
+  attribute = 'attribute',
+  boolean = 'boolean',
+  event = 'event',
+  rxEvent = 'rxEvent',
+  property = 'property',
+  spread = 'spread',
+  directive = 'directive',
+}

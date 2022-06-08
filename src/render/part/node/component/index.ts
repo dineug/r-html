@@ -25,6 +25,7 @@ import {
   UNMOUNTED,
   UPDATED,
 } from '@/component/webComponent';
+import { TAttrType } from '@/constants';
 import { isFunction } from '@/helpers/is-type';
 import { observable, observer, Unsubscribe } from '@/observable';
 import {
@@ -41,12 +42,12 @@ import { RxEventPart } from '@/render/part/attribute/rxEvent';
 import { SpreadPart } from '@/render/part/attribute/spread';
 import { PropPart } from '@/render/part/node/component/prop';
 import {
+  createPart,
   getPartType,
-  isPartMap,
-  partMap,
+  isPart,
 } from '@/render/part/node/text/helper';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TAttr, TAttrType, TNode } from '@/template/node';
+import { TAttr, TNode } from '@/template/node';
 
 export class ComponentPart implements Part {
   #startNode = document.createComment('');
@@ -145,9 +146,9 @@ export class ComponentPart implements Part {
       const result = render();
       const type = getPartType(result);
 
-      if (!isPartMap[type](this.#part)) {
+      if (!isPart(type, this.#part)) {
         this.partClear();
-        this.#part = new partMap[type](this.#startNode, this.#endNode);
+        this.#part = createPart(type, this.#startNode, this.#endNode);
       }
 
       lifecycleHooks(this, isMounted ? BEFORE_UPDATE : BEFORE_FIRST_UPDATE);

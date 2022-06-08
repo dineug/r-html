@@ -1,7 +1,7 @@
 import { insertBeforeNode, rangeNodes, removeNode } from '@/render/helper';
 import { Operator, OperatorCallback, OperatorProps } from '@/render/operator';
 import { Part } from '@/render/part';
-import { getPartType, partMap } from '@/render/part/node/text/helper';
+import { createPart, getPartType } from '@/render/part/node/text/helper';
 import { isTemplateLiterals } from '@/template/helper';
 
 interface CachePart {
@@ -40,7 +40,7 @@ class Cache extends Operator {
 
   createPart(value: any): CachePart {
     const type = getPartType(value);
-    const part = new partMap[type](this.#startNode, this.#endNode);
+    const part = createPart(type, this.#startNode, this.#endNode);
     const template = document.createElement('template');
     return {
       part,

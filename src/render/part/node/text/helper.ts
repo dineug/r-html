@@ -1,5 +1,6 @@
 import { isArray, isFunction, isPrimitive } from '@/helpers/is-type';
 import { isNode } from '@/render/helper';
+import { Part } from '@/render/part';
 import { ArrayPart } from '@/render/part/node/text/array';
 import { FunctionPart } from '@/render/part/node/text/function';
 import { NodePart } from '@/render/part/node/text/node';
@@ -39,10 +40,7 @@ export const getPartType = (value: any): PartType =>
     ? PartType.function
     : PartType.object;
 
-export const isPartMap: Record<
-  PartType,
-  ReturnType<typeof createInstanceof>
-> = {
+const isPartMap: Record<PartType, ReturnType<typeof createInstanceof>> = {
   [PartType.primitive]: isPrimitivePart,
   [PartType.templateLiterals]: isTemplateLiteralsPart,
   [PartType.array]: isArrayPart,
@@ -51,7 +49,7 @@ export const isPartMap: Record<
   [PartType.object]: isObjectPart,
 };
 
-export const partMap: Record<PartType, any> = {
+const partMap: Record<PartType, any> = {
   [PartType.primitive]: PrimitivePart,
   [PartType.templateLiterals]: TemplateLiteralsPart,
   [PartType.array]: ArrayPart,
@@ -59,3 +57,12 @@ export const partMap: Record<PartType, any> = {
   [PartType.function]: FunctionPart,
   [PartType.object]: ObjectPart,
 };
+
+export const isPart = (type: PartType, part: Part | null) =>
+  isPartMap[type](part);
+
+export const createPart = (
+  type: PartType,
+  startNode: Comment,
+  endNode: Comment
+): Part => new partMap[type](startNode, endNode);

@@ -3,9 +3,9 @@ import { rangeNodes, removeNode } from '@/render/helper';
 import { Operator, OperatorClass } from '@/render/operator';
 import { Part } from '@/render/part';
 import {
+  createPart,
   getPartType,
-  isPartMap,
-  partMap,
+  isPart,
 } from '@/render/part/node/text/helper';
 
 const isOperator = (value: any) => value instanceof Operator;
@@ -47,9 +47,9 @@ export class FunctionPart implements Part {
     if (isUndefined(result)) return;
 
     const type = getPartType(result);
-    if (!isPartMap[type](this.#part)) {
+    if (!isPart(type, this.#part)) {
       isNull(this.#part) || this.clear();
-      this.#part = new partMap[type](this.#startNode, this.#endNode);
+      this.#part = createPart(type, this.#startNode, this.#endNode);
     }
 
     this.#part?.commit(result);

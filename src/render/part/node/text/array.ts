@@ -11,7 +11,11 @@ import {
   partsToDiffItems,
   valuesToDiffItems,
 } from '@/render/part/node/text/arrayDiff';
-import { getPartType, partMap, PartType } from '@/render/part/node/text/helper';
+import {
+  createPart,
+  getPartType,
+  PartType,
+} from '@/render/part/node/text/helper';
 
 export class ArrayPart implements Part {
   #startNode: Comment;
@@ -87,7 +91,7 @@ export class ItemPart implements Part {
     removeNode(node);
     this.value = value;
     this.type = getPartType(value);
-    this.#part = new partMap[this.type](this.startNode, this.endNode);
+    this.#part = createPart(this.type, this.startNode, this.endNode);
   }
 
   commit(value: any) {

@@ -1,3 +1,4 @@
+import { TAttrType } from '@/constants';
 import {
   isArray,
   isBoolean,
@@ -8,7 +9,7 @@ import {
 import { VNodeType } from '@/parser/node';
 import { TemplateLiterals, TemplateLiteralsType } from '@/template';
 import { html, svg } from '@/template/html';
-import { TAttr, TAttrType, TNode } from '@/template/node';
+import { TAttr, TNode } from '@/template/node';
 
 type EventTuple = [
   Function,

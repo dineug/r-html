@@ -7,9 +7,9 @@ import {
 } from '@/render/helper';
 import { Part } from '@/render/part';
 import {
+  createPart,
   getPartType,
-  isPartMap,
-  partMap,
+  isPart,
 } from '@/render/part/node/text/helper';
 import { getMarkers, MarkerTuple } from '@/template/helper';
 import { TNode } from '@/template/node';
@@ -34,9 +34,9 @@ export class TextPart implements Part {
     if (this.#value === newValue) return;
 
     const type = getPartType(newValue);
-    if (!isPartMap[type](this.#part)) {
+    if (!isPart(type, this.#part)) {
       isNull(this.#part) || this.clear();
-      this.#part = new partMap[type](this.#startNode, this.#endNode);
+      this.#part = createPart(type, this.#startNode, this.#endNode);
     }
 
     this.#part?.commit(newValue);

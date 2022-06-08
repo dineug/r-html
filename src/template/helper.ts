@@ -2,21 +2,18 @@ import {
   MARKER,
   markerOnlyRegexp,
   markersRegexp,
-  nextLineRegexp,
   PREFIX_BOOLEAN,
   PREFIX_EVENT,
   PREFIX_ON_EVENT,
   PREFIX_PROPERTY,
   SPREAD_MARKER,
   SUFFIX_RX_EVENT,
+  TAttrType,
 } from '@/constants';
-import { groupBy } from '@/helpers/array';
 import { isArray } from '@/helpers/is-type';
-import { VAttr, VNode, VNodeType } from '@/parser/node';
 import { TemplateLiterals, TemplateLiteralsType } from '@/template';
-import { TAttr, TAttrType, TNode } from '@/template/node';
+import { TAttr } from '@/template/node';
 
-type AttrsTuple = [Array<TAttr>, Array<TAttr>];
 export type MarkerTuple = [string, number];
 
 const svgTypes = [TemplateLiteralsType.svg];
@@ -98,83 +95,4 @@ export function getMarkers(value: string): MarkerTuple[] {
   }
 
   return markers;
-}
-
-export function createAttrsTuple(attrs: VAttr[] = []): AttrsTuple {
-  const groupMap = groupBy(attrs, attr => getAttrName(attr.name));
-  return Object.keys(groupMap)
-    .map(k => groupMap[k])
-    .reduce<AttrsTuple>(
-      (acc, attrGroup) => {
-        const [staticAttrs, partAttrs] = acc;
-        const lastAttr = attrGroup[attrGroup.length - 1];
-        const type = getAttrType(lastAttr.name);
-
-        if (type === TAttrType.event || type === TAttrType.rxEvent) {
-          partAttrs.push(
-            ...attrGroup
-              .filter(attr => Boolean(attr.value))
-              .map(attr => ({
-                type: getAttrType(attr.name),
-                name: getAttrName(attr.name),
-                value: attr.value,
-              }))
-          );
-        } else if (type === TAttrType.attribute) {
-          const value = attrGroup
-            .filter(attr => Boolean(attr.value))
-            .map(attr => attr.value)
-            .join(' ');
-          const newAttr: TAttr = { type, name: getAttrName(lastAttr.name) };
-          value && (newAttr.value = value);
-
-          isPartAttr(newAttr)
-            ? partAttrs.push(newAttr)
-            : staticAttrs.push(newAttr);
-        } else {
-          const newAttr: TAttr = { type, name: getAttrName(lastAttr.name) };
-          lastAttr.value && (newAttr.value = lastAttr.value);
-
-          isPartAttr(newAttr)
-            ? partAttrs.push(newAttr)
-            : staticAttrs.push(newAttr);
-        }
-
-        return acc;
-      },
-      [[], []]
-    );
-}
-
-export function splitTextNode(node: TNode) {
-  const markers = getMarkers(node.value);
-
-  node.value
-    .replace(markersRegexp, MARKER)
-    .split(MARKER)
-    .reduce<Array<TNode>>((acc, value, i) => {
-      i < markers.length
-        ? acc.push(
-            new TNode(new VNode({ type: VNodeType.text, value }), node.parent),
-            new TNode(
-              new VNode({ type: VNodeType.text, value: markers[i][0] }),
-              node.parent
-            )
-          )
-        : acc.push(
-            new TNode(new VNode({ type: VNodeType.text, value }), node.parent)
-          );
-      return acc;
-    }, [])
-    .filter(
-      node =>
-        node.value !== '' &&
-        !(!node.value.trim() && nextLineRegexp.test(node.value))
-    )
-    .reverse()
-    .forEach((textNode, index, { length }) =>
-      index === length - 1
-        ? (node.value = textNode.value)
-        : node.parent && node.parent.insert('after', textNode, node)
-    );
 }

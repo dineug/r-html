@@ -3,9 +3,9 @@ import { Observable, Subscription } from 'rxjs';
 import { isPromise, noop, rangeNodes, removeNode } from '@/render/helper';
 import { Part } from '@/render/part';
 import {
+  createPart,
   getPartType,
-  isPartMap,
-  partMap,
+  isPart,
 } from '@/render/part/node/text/helper';
 
 export class ObjectPart implements Part {
@@ -38,7 +38,7 @@ export class ObjectPart implements Part {
 
     newPromise.then(value => {
       const type = getPartType(value);
-      this.#part = new partMap[type](this.#startNode, this.#endNode);
+      this.#part = createPart(type, this.#startNode, this.#endNode);
       this.#part?.commit(value);
     });
 
@@ -48,9 +48,9 @@ export class ObjectPart implements Part {
   observableCommit(observable: Observable<any>) {
     this.#subscription = observable.subscribe(value => {
       const type = getPartType(value);
-      if (!isPartMap[type](this.#part)) {
+      if (!isPart(type, this.#part)) {
         this.partClear();
-        this.#part = new partMap[type](this.#startNode, this.#endNode);
+        this.#part = createPart(type, this.#startNode, this.#endNode);
       }
 
       this.#part?.commit(value);
