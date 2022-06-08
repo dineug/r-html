@@ -2,26 +2,27 @@ import { SAGA_ACTION } from '@redux-saga/symbols';
 import { runSaga, stdChannel } from 'redux-saga';
 import { map } from 'rxjs/operators';
 
-import { Action, notEmptyActions, Store } from '@/store';
+import { AnyAction, notEmptyActions, Store } from '@/store';
+
+export type RootState<S, C> = { state: S; ctx: C };
 
 export function createSaga<
   SAGA extends (...args: any[]) => Iterator<any>,
   S,
-  M,
   C = {}
 >(
-  { context: ctx, state, dispatchSync, dispatch$ }: Store<S, M, C>,
+  { context: ctx, state, dispatchSync, dispatch$ }: Store<S, C>,
   saga: SAGA,
   ...args: Parameters<SAGA>
 ) {
-  const channel = stdChannel<Action<keyof M, M>>();
+  const channel = stdChannel<AnyAction>();
   const sagaIO = {
     channel,
-    dispatch(action: Action<keyof M, M>) {
+    dispatch(action: AnyAction) {
       Reflect.get(action, SAGA_ACTION) && dispatchSync(action);
       channel.put(action);
     },
-    getState: () => ({ state, ctx }),
+    getState: (): RootState<S, C> => ({ state, ctx }),
   };
   const task = runSaga(sagaIO, saga, ...args);
 

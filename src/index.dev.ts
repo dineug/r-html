@@ -2,7 +2,7 @@ import { put, select, takeEvery } from 'redux-saga/effects';
 import { Observable } from 'rxjs';
 
 import {
-  Action,
+  AnyAction,
   createAction,
   createSaga,
   createStore,
@@ -13,6 +13,7 @@ import {
   observer,
   Reducer,
   render,
+  RootState,
 } from '@/index';
 
 const Test: FC<{ count: number }> = (
@@ -83,18 +84,14 @@ const app = () => html`<my-test />`;
 
 render(document.body, app());
 
-const ActionTypeName = {
-  increase: 'increase',
-  increaseSaga: 'increaseSaga',
-} as const;
-
-type ActionTypeName = typeof ActionTypeName[keyof typeof ActionTypeName];
-
 interface ActionTypeMap {
-  [ActionTypeName.increase]: {
+  increase: {
     num: number;
   };
-  [ActionTypeName.increaseSaga]: null;
+}
+
+interface ActionTypeSagaMap {
+  increaseSaga: void;
 }
 
 interface State {
@@ -105,32 +102,29 @@ interface Context {
   test: string;
 }
 
-const increase: Reducer<
+type SelectRootState = RootState<State, Context>;
+type ReducerWithType<T extends keyof ActionTypeMap> = Reducer<
   State,
-  typeof ActionTypeName.increase,
+  T,
   ActionTypeMap,
   Context
-> = (state, payload, ctx) => {
+>;
+
+const increaseAction = createAction<ActionTypeMap['increase']>('increase');
+const increaseSagaAction = createAction('increaseSaga');
+
+const increase: ReducerWithType<'increase'> = (state, payload, ctx) => {
   state.count = payload.num;
 };
 
-function* increaseSaga(
-  action: Action<typeof ActionTypeName.increaseSaga, ActionTypeMap>
-) {
-  const { state }: { state: State; ctx: Context } = yield select();
+function* increaseSaga(action: AnyAction<ActionTypeSagaMap['increaseSaga']>) {
+  const { state }: SelectRootState = yield select();
 
-  yield put(
-    createAction<typeof ActionTypeName.increase, ActionTypeMap>(
-      ActionTypeName.increase,
-      {
-        num: state.count + 1,
-      }
-    )
-  );
+  yield put(increaseAction({ num: state.count + 1 }));
 }
 
 function* rootSaga() {
-  yield takeEvery(ActionTypeName.increaseSaga, increaseSaga);
+  yield takeEvery(increaseSagaAction.type, increaseSaga);
 }
 
 const store = createStore<State, ActionTypeMap, Context>({
@@ -141,8 +135,7 @@ const store = createStore<State, ActionTypeMap, Context>({
     count: 0,
   },
   reducers: {
-    [ActionTypeName.increase]: increase,
-    [ActionTypeName.increaseSaga]: () => {},
+    increase,
   },
 });
 
@@ -152,6 +145,6 @@ observer(() => {
   console.log(store.state.count);
 
   setTimeout(() => {
-    store.dispatch(createAction(ActionTypeName.increaseSaga, null));
+    store.dispatch(increaseSagaAction());
   }, 1000);
 });
