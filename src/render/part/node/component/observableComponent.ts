@@ -186,14 +186,14 @@ export class ObservableComponentPart implements Part {
   }
 
   partClear() {
-    this.#part?.destroy && this.#part.destroy();
+    this.#part?.destroy?.();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
   }
 
   clear() {
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
     lifecycleHooks(this, UNMOUNTED);
-    this.#parts.forEach(part => part.destroy && part.destroy());
+    this.#parts.forEach(part => part.destroy?.());
     this.#unsubscribe?.();
     this.#parts = [];
     this.#unsubscribe = null;
@@ -203,7 +203,5 @@ export class ObservableComponentPart implements Part {
   destroy() {
     this.clear();
     this.partClear();
-    this.#startNode.remove();
-    this.#endNode.remove();
   }
 }

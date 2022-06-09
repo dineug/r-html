@@ -60,14 +60,14 @@ export class ObjectPart implements Part {
   }
 
   partClear() {
-    this.#part?.destroy && this.#part.destroy();
+    this.#part?.destroy?.();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
   }
 
   clear() {
     this.#cancel();
     this.#subscription?.unsubscribe();
-    this.#part?.destroy && this.#part.destroy();
+    this.#part?.destroy?.();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
     this.#cancel = noop;
     this.#subscription = null;

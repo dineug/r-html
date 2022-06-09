@@ -44,7 +44,7 @@ export class TextPart implements Part {
   }
 
   clear() {
-    this.#part?.destroy && this.#part.destroy();
+    this.#part?.destroy?.();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
   }
 

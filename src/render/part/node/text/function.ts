@@ -60,7 +60,7 @@ export class FunctionPart implements Part {
 
   clear() {
     this.#directive?.destroy();
-    this.#part?.destroy && this.#part.destroy();
+    this.#part?.destroy?.();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
   }
 

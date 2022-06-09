@@ -112,7 +112,7 @@ export class ItemPart implements Part {
   }
 
   destroy() {
-    this.#part.destroy && this.#part.destroy();
+    this.#part.destroy?.();
     rangeNodes(this.startNode, this.endNode).forEach(removeNode);
     this.startNode.remove();
     this.endNode.remove();

@@ -77,7 +77,7 @@ class Cache extends NodeDirective {
   }
 
   destroy() {
-    this.#cache.forEach(({ part }) => part.destroy && part.destroy());
+    this.#cache.forEach(({ part }) => part.destroy?.());
     this.#cache = new Map();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
   }
