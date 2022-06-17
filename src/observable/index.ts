@@ -101,7 +101,11 @@ export function observable<T>(
       addObserver(raw);
       addTrigger(raw, p);
 
-      if (!shallow && isObject(value) && !proxyToRaw.has(value)) {
+      if (
+        !shallow &&
+        (isObject(value) || isArray(value)) &&
+        !proxyToRaw.has(value)
+      ) {
         return rawToProxy.has(value)
           ? rawToProxy.get(value)
           : observable(value, options);
