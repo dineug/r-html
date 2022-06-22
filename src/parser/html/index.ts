@@ -40,7 +40,7 @@ export function parser(tokens: Token[]) {
 
   const walkAttr = () => {
     let token = tokens[pos];
-    const attr: VAttr = { name: token.value.toLowerCase() };
+    const attr: VAttr = { name: token.value };
     token = tokens[++pos];
 
     if (equalToken(pos)) {
