@@ -1,0 +1,11 @@
+{
+  "name": "@dineug/hmr",
+  "private": true,
+  "scripts": {
+    "serve": "vite"
+  },
+  "dependencies": {
+    "@dineug/r-html": "*",
+    "@dineug/vite-plugin-r-html": "*"
+  }
+}

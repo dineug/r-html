@@ -1,0 +1,27 @@
+{
+  "name": "@dineug/vite-plugin-r-html",
+  "private": true,
+  "version": "0.1.0",
+  "main": "dist/vite-plugin-r-html.js",
+  "typings": "types/index.d.ts",
+  "files": [
+    "dist/*.js",
+    "types"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dineug/r-html.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dineug/r-html/issues"
+  },
+  "homepage": "https://github.com/dineug/r-html#readme",
+  "author": "SeungHwan-Lee <dineug2@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {
+    "@babel/core": "^7.18.2"
+  }
+}
