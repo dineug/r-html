@@ -7,6 +7,16 @@ export interface Options {
   exclude?: string | RegExp | Array<string | RegExp>;
 }
 
+const hmr = (name: string) => `
+if (import.meta.hot) {
+  import.meta.hot.accept((mod) => {
+    window.dispatchEvent(new CustomEvent('hmr:r-html', {
+      detail: {origin: ${name}, module: mod}
+    }));
+  });
+}
+`;
+
 function rHtml(options: Options = {}): Plugin {
   const filter = createFilter(
     options.include,
@@ -63,9 +73,7 @@ function rHtml(options: Options = {}): Plugin {
         const name = (node.declaration as any).name;
 
         return {
-          code:
-            code +
-            `if (import.meta.hot) {import.meta.hot.accept((m) => {console.log('m', ${name}, m)});}`,
+          code: code + hmr(name),
         };
       }
     },

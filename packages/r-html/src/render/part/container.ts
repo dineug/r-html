@@ -1,3 +1,5 @@
+import { Subscription } from 'rxjs';
+
 import {
   insertAfterNode,
   insertBeforeNode,
@@ -5,6 +7,7 @@ import {
   reCacheTemplate,
   removeNode,
 } from '@/render/helper';
+import { hmrSubject, replaceComponent } from '@/render/hmr';
 import { createTemplate, Part } from '@/render/part';
 import { templateCache, TemplateLiterals } from '@/template';
 import { isSVG } from '@/template/helper';
@@ -16,6 +19,8 @@ export class ContainerPart implements Part {
   #parts: Part[] = [];
   #strings: TemplateStringsArray;
   #isInject = false;
+  #prevValues: any[] = [];
+  #hmrSubscription: Subscription | null = null;
 
   constructor(
     templateLiterals: TemplateLiterals,
@@ -40,6 +45,8 @@ export class ContainerPart implements Part {
       fragment.prepend(this.#startNode);
       fragment.append(this.#endNode);
     }
+
+    this.hmr();
   }
 
   equalStrings(strings: TemplateStringsArray) {
@@ -47,7 +54,9 @@ export class ContainerPart implements Part {
   }
 
   commit(values: any[]) {
-    this.#parts.forEach(part => part.commit(values));
+    const newValues = replaceComponent(values);
+    this.#parts.forEach(part => part.commit(newValues));
+    this.#prevValues = values;
   }
 
   insert(position: 'before' | 'after' | 'children', refNode: Node) {
@@ -60,7 +69,14 @@ export class ContainerPart implements Part {
     this.#fragment = null;
   }
 
+  hmr() {
+    this.#hmrSubscription = hmrSubject.subscribe(
+      value => this.#prevValues.includes(value) && this.commit(this.#prevValues)
+    );
+  }
+
   destroy() {
+    this.#hmrSubscription?.unsubscribe();
     this.#parts.forEach(part => part.destroy?.());
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
     if (!this.#isInject) {

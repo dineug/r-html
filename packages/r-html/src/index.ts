@@ -17,6 +17,7 @@ export type {
   NodeDirectiveTuple,
 } from '@/render/directives/nodeDirective';
 export { NodeDirective } from '@/render/directives/nodeDirective';
+export { hmr } from '@/render/hmr';
 export { NoopComponent } from '@/render/part/node/component/helper';
 export {
   onBeforeFirstUpdate,
