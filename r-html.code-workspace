@@ -9,6 +9,10 @@
       "path": "packages/vite-plugin-r-html"
     },
     {
+      "name": "hmr",
+      "path": "packages/hmr"
+    },
+    {
       "name": "monorepo",
       "path": "."
     }
