@@ -7,7 +7,11 @@ const originComponent = new WeakMap<FC, FC>();
 const hmrComponent = new WeakMap<FC, FC>();
 export const hmrSubject = new Subject<FC>();
 
+let active = false;
+
 export function hmr() {
+  active = true;
+
   window.addEventListener('hmr:r-html', (event: any) => {
     let { origin, module }: any = event?.detail ?? {};
 
@@ -33,7 +37,9 @@ function hasHmrComponent(value: any) {
 }
 
 export function replaceComponent(values: any[]): any[] {
-  return values.map(value =>
-    hasHmrComponent(value) ? hmrComponent.get(value) : value
-  );
+  return active
+    ? values.map(value =>
+        hasHmrComponent(value) ? hmrComponent.get(value) : value
+      )
+    : values;
 }
