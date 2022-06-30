@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 
 import { insertAfterNode, insertBeforeNode } from '@/render/helper';
-import { hmrSubject, replaceComponent } from '@/render/hmr';
+import { hmr$, replaceComponent } from '@/render/hmr';
 import { Part } from '@/render/part';
 import { ObservableComponentPart } from '@/render/part/node/component/observableComponent';
 import { TNode } from '@/template/node';
@@ -35,7 +35,7 @@ export class ComponentPart implements Part {
   }
 
   hmr() {
-    this.#hmrSubscription = hmrSubject.subscribe(
+    this.#hmrSubscription = hmr$.subscribe(
       value => this.#prevValues.includes(value) && this.commit(this.#prevValues)
     );
   }
