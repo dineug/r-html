@@ -3,6 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import { safeCallback } from '@/helpers/fn';
 import { isArray, isObject } from '@/helpers/is-type';
 import { effect, watchEffect } from '@/observable/scheduler';
+import { addHmrObservable } from '@/render/hmr';
 
 export type PropName = string | number | symbol;
 export type Observer = () => void;
@@ -130,6 +131,7 @@ export function observable<T>(
 
   rawToProxy.set(raw as any, proxy);
   proxyToRaw.set(proxy, raw);
+  addHmrObservable(proxy);
 
   return proxy;
 }

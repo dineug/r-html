@@ -11,7 +11,7 @@ const hmr = (name: string) => `
 if (import.meta.hot) {
   import.meta.hot.accept((mod) => {
     window.dispatchEvent(new CustomEvent('hmr:r-html', {
-      detail: {origin: ${name}, module: mod}
+      detail: {originComponent: ${name}, newComponent: mod?.default}
     }));
   });
 }

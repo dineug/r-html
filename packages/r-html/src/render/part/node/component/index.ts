@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 
 import { insertAfterNode, insertBeforeNode } from '@/render/helper';
-import { hmr$, replaceComponent } from '@/render/hmr';
+import { hmr$, hotReplaceComponent } from '@/render/hmr';
 import { Part } from '@/render/part';
 import { ObservableComponentPart } from '@/render/part/node/component/observableComponent';
 import { TNode } from '@/template/node';
@@ -29,7 +29,7 @@ export class ComponentPart implements Part {
   }
 
   commit(values: any[]) {
-    const newValues = replaceComponent(values);
+    const newValues = hotReplaceComponent(values);
     this.#part.commit(newValues);
     this.#prevValues = values;
   }
