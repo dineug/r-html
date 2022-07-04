@@ -17,7 +17,7 @@ interface Task {
 
 const queue: Task[] = [];
 const watchQueue = new Map<any, Array<PropName>>();
-const idleOptions = { timeout: 16 * 5 };
+const idleOptions = { timeout: 16 };
 
 let batch = false;
 
