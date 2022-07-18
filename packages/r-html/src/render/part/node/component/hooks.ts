@@ -20,6 +20,10 @@ export function setCurrentInstance(component: any) {
   currentInstance = component;
 }
 
+export function getCurrentInstance() {
+  return currentInstance;
+}
+
 const createLifecycle = (name: LifecycleName) => (f: Callback) => {
   currentInstance &&
     (currentInstance[name] ?? (currentInstance[name] = [])).push(f);

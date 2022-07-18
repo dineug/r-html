@@ -25,7 +25,7 @@ import {
 import { isFunction } from '@/helpers/is-type';
 import { observable, observer, Unsubscribe } from '@/observable';
 import { rangeNodes, removeNode, setProps } from '@/render/helper';
-import { hotReloadObservable, setHmrInstance } from '@/render/hmr';
+import { hotReloadObservable } from '@/render/hmr';
 import { createTemplate, Part } from '@/render/part';
 import { DirectivePart } from '@/render/part/attribute/directive';
 import { EventPart } from '@/render/part/attribute/event';
@@ -142,10 +142,8 @@ export class ObservableComponentPart implements Part {
 
     this.clear();
     setCurrentInstance(this);
-    setHmrInstance(this);
     const render = functionalComponent.call(ctx, this.#props, ctx);
     setCurrentInstance(null);
-    setHmrInstance(null);
 
     hotReloadObservable(this);
 

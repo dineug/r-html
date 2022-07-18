@@ -1,17 +1,17 @@
-import { Subscription } from 'rxjs';
-
 import { insertAfterNode, insertBeforeNode } from '@/render/helper';
-import { hmr$, hotReplaceComponent } from '@/render/hmr';
+import { mixinHmrComponent } from '@/render/hmr';
 import { Part } from '@/render/part';
 import { ObservableComponentPart } from '@/render/part/node/component/observableComponent';
 import { TNode } from '@/template/node';
 
-export class ComponentPart implements Part {
+export interface ComponentPartClass {
+  new (node: Comment, tNode: TNode, parts: Part[]): Part;
+}
+
+const Component = class implements Part {
   #startNode = document.createComment('');
   #endNode = document.createComment('');
   #part: Part;
-  #prevValues: any[] = [];
-  #hmrSubscription: Subscription | null = null;
 
   constructor(node: Comment, tNode: TNode, parts: Part[]) {
     this.#part = new ObservableComponentPart(
@@ -24,26 +24,17 @@ export class ComponentPart implements Part {
     insertBeforeNode(this.#startNode, node);
     insertAfterNode(this.#endNode, node);
     node.remove();
-
-    this.hmr();
   }
 
   commit(values: any[]) {
-    const newValues = hotReplaceComponent(values);
-    this.#part.commit(newValues);
-    this.#prevValues = values;
-  }
-
-  hmr() {
-    this.#hmrSubscription = hmr$.subscribe(
-      value => this.#prevValues.includes(value) && this.commit(this.#prevValues)
-    );
+    this.#part.commit(values);
   }
 
   destroy() {
-    this.#hmrSubscription?.unsubscribe();
     this.#part.destroy?.();
     this.#startNode.remove();
     this.#endNode.remove();
   }
-}
+};
+
+export const ComponentPart: ComponentPartClass = mixinHmrComponent(Component);
