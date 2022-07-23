@@ -5,6 +5,7 @@ coverage
 docs
 storybook-static
 types
+.turbo
 
 # Log files
 npm-debug.log*
