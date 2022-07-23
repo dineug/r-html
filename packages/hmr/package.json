@@ -5,7 +5,7 @@
     "serve": "vite"
   },
   "dependencies": {
-    "@dineug/r-html": "*",
-    "@dineug/vite-plugin-r-html": "*"
+    "@dineug/r-html": "workspace:*",
+    "@dineug/vite-plugin-r-html": "workspace:*"
   }
 }
