@@ -13,7 +13,7 @@ import {
   observer,
   Reducer,
   render,
-  RootState,
+  SagaRootState,
 } from '@/index';
 
 const Test: FC<{ count: number }> = (
@@ -102,7 +102,7 @@ interface Context {
   test: string;
 }
 
-type SelectRootState = RootState<State, Context>;
+type SelectRootState = SagaRootState<State, Context>;
 type ReducerWithType<T extends keyof ActionTypeMap> = Reducer<
   State,
   T,

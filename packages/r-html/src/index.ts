@@ -48,7 +48,7 @@ export type {
   Store,
 } from '@/store';
 export { createAction, createStore } from '@/store';
-export type { RootState } from '@/store/saga';
+export type { SagaRootState } from '@/store/saga';
 export { createSaga } from '@/store/saga';
 export { html, svg } from '@/template/html';
 export type { Emotion } from '@emotion/css/create-instance';

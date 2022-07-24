@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 
 import { AnyAction, notEmptyActions, Store } from '@/store';
 
-export type RootState<S, C> = { state: S; ctx: C };
+export type SagaRootState<S, C> = { state: S; ctx: C };
 
 export function createSaga<
   SAGA extends (...args: any[]) => Iterator<any>,
@@ -22,7 +22,7 @@ export function createSaga<
       Reflect.get(action, SAGA_ACTION) && dispatchSync(action);
       channel.put(action);
     },
-    getState: (): RootState<S, C> => ({ state, ctx }),
+    getState: (): SagaRootState<S, C> => ({ state, ctx }),
   };
   const task = runSaga(sagaIO, saga, ...args);
 
