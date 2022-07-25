@@ -1,9 +1,8 @@
-import { Observable, Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, Observable, Subject, Subscription } from 'rxjs';
 
 import { flat } from '@/helpers/array';
 import { asap, safeCallback } from '@/helpers/fn';
-import { observable } from '@/observable';
+import { observable, Unsubscribe } from '@/observable';
 
 export type Action<K extends keyof M, M> = {
   type: K;
@@ -35,14 +34,17 @@ type Options<S, M, C> = {
   reducers: ReducerRecord<S, keyof M, M, C>;
 };
 
+export type DispatchOperator = (
+  dispatch$: Observable<Array<AnyAction>>
+) => Observable<Array<AnyAction>>;
+
 export type Store<S, C> = {
   context: C;
   state: S;
   dispatch(...actions: GeneratorActions): void;
   dispatchSync(...actions: GeneratorActions): void;
-  dispatchHistory(...actions: GeneratorActions): void;
-  beforeDispatch$: Observable<Array<AnyAction>>;
   dispatch$: Observable<Array<AnyAction>>;
+  pipe(...operators: DispatchOperator[]): Unsubscribe;
   destroy(): void;
 };
 
@@ -70,8 +72,18 @@ export function createStore<S, M, C = {}>({
   reducers,
 }: Options<S, M, C>): Store<S, C> {
   const state = observable(initialState);
-  const beforeDispatch$ = new Subject<Array<AnyAction>>();
-  const dispatch$ = new Subject<Array<AnyAction>>();
+  const beforeDispatchSubject$ = new Subject<Array<AnyAction>>();
+  const dispatchSubject$ = new Subject<Array<AnyAction>>();
+  const dispatch$ = dispatchSubject$.pipe(notEmptyActions);
+  let beforeDispatch$ = beforeDispatchSubject$.asObservable();
+  let connectSubscription: Subscription | null = null;
+
+  const connect = () => {
+    connectSubscription?.unsubscribe();
+    connectSubscription = beforeDispatch$.subscribe(actions =>
+      dispatchSubject$.next(actions)
+    );
+  };
 
   const runReducer = (action: AnyAction) => {
     const reducer = Reflect.get(reducers, action.type, reducers);
@@ -80,36 +92,44 @@ export function createStore<S, M, C = {}>({
 
   const dispatchSync = (...generatorActions: GeneratorActions) => {
     const actions = [...flat<AnyAction>(generatorActions)];
-    beforeDispatch$.next(actions);
-    actions.forEach(runReducer);
-    dispatch$.next(actions);
+    beforeDispatchSubject$.next(actions);
   };
 
   const dispatch = (...generatorActions: GeneratorActions) => {
     asap(() => dispatchSync(...generatorActions));
   };
 
-  const dispatchHistory = (...generatorActions: GeneratorActions) => {
-    asap(() => {
-      const actions = [...flat<AnyAction>(generatorActions)];
-      actions.forEach(runReducer);
-      dispatch$.next(actions);
-    });
+  const subscription = dispatch$.subscribe(actions =>
+    actions.forEach(runReducer)
+  );
+
+  const pipe = (...operators: DispatchOperator[]) => {
+    // @ts-ignore
+    beforeDispatch$ = beforeDispatchSubject$.pipe(...operators);
+    connect();
+
+    return () => {
+      beforeDispatch$ = beforeDispatchSubject$.asObservable();
+      connect();
+    };
   };
 
   const destroy = () => {
-    beforeDispatch$.unsubscribe();
-    dispatch$.unsubscribe();
+    connectSubscription?.unsubscribe();
+    subscription.unsubscribe();
+    dispatchSubject$.unsubscribe();
+    beforeDispatchSubject$.unsubscribe();
   };
+
+  connect();
 
   return {
     context,
     state,
     dispatch,
     dispatchSync,
-    dispatchHistory,
-    beforeDispatch$: beforeDispatch$.pipe(notEmptyActions),
-    dispatch$: dispatch$.pipe(notEmptyActions),
+    dispatch$,
+    pipe,
     destroy,
   };
 }

@@ -43,6 +43,7 @@ export {
 export type {
   Action,
   AnyAction,
+  DispatchOperator,
   GeneratorActions,
   Reducer,
   Store,

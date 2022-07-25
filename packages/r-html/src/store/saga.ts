@@ -1,6 +1,6 @@
 import { SAGA_ACTION } from '@redux-saga/symbols';
 import { runSaga, stdChannel } from 'redux-saga';
-import { map } from 'rxjs/operators';
+import { map } from 'rxjs';
 
 import { AnyAction, notEmptyActions, Store } from '@/store';
 
