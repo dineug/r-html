@@ -16,22 +16,3 @@ const queueMicrotaskFallback = (callback: () => void) => {
 };
 
 export const asap = window.queueMicrotask ?? queueMicrotaskFallback;
-
-const requestIdleCallbackFallback = (
-  callback: IdleRequestCallback,
-  options?: IdleRequestOptions
-): number => {
-  const start = Date.now();
-  return window.setTimeout(
-    () =>
-      callback({
-        didTimeout: false,
-        timeRemaining: () => Math.max(0, 50 - (Date.now() - start)),
-      }),
-    options?.timeout ?? 1
-  );
-};
-
-export const idle = window.requestIdleCallback ?? requestIdleCallbackFallback;
-
-export const cancelIdle = window.cancelIdleCallback ?? window.clearTimeout;

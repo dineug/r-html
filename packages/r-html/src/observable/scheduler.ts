@@ -1,4 +1,4 @@
-import { asap, idle, safeCallback } from '@/helpers/fn';
+import { asap, safeCallback } from '@/helpers/fn';
 import {
   Observer,
   observer,
@@ -19,7 +19,7 @@ const queue: Task[] = [];
 const watchQueue = new Map<any, Array<PropName>>();
 const idleOptions = { timeout: 16 };
 
-let batch = false;
+let executable = true;
 
 function isTrigger(raw: any, p: PropName, observer: Observer) {
   const triggers = observerToTriggers.get(observer);
@@ -35,9 +35,9 @@ const isQueue = (f: Observer | VoidFunction) =>
 const createNextTick = (type: Task['type']) => (fn: VoidFunction) => {
   isQueue(fn) || queue.push({ type, fn });
 
-  if (!batch) {
+  if (executable) {
     asap(execute);
-    batch = true;
+    executable = false;
   }
 };
 
@@ -51,28 +51,46 @@ export const effect = (raw: any, p: PropName) =>
       observer => isTrigger(raw, p, observer) && observerNextTick(observer)
     );
 
-function execute() {
+function runTask() {
+  const task = queue.shift();
+  if (!task) return false;
+
+  if (task.type === 'observer') {
+    unobserve(task.fn);
+    observer(task.fn);
+  } else if (task.type === 'nextTick') {
+    safeCallback(task.fn);
+  }
+
+  return true;
+}
+
+function executeIdle() {
   const run = (deadline: IdleDeadline) => {
     do {
-      const task = queue.shift();
-      if (!task) break;
-
-      if (task.type === 'observer') {
-        unobserve(task.fn);
-        observer(task.fn);
-      } else if (task.type === 'nextTick') {
-        safeCallback(task.fn);
-      }
+      runTask();
     } while (queue.length && deadline.timeRemaining() > 0);
 
     if (queue.length) {
-      idle(run, idleOptions);
+      window.requestIdleCallback(run, idleOptions);
     } else {
-      batch = false;
+      executable = true;
     }
   };
 
-  idle(run, idleOptions);
+  window.requestIdleCallback(run, idleOptions);
+}
+
+function executeAsap() {
+  while (queue.length) {
+    runTask();
+  }
+  executable = true;
+}
+
+function execute() {
+  const exec = 'requestIdleCallback' in window ? executeIdle : executeAsap;
+  exec();
 }
 
 export function watchEffect(raw: any, p: PropName) {
