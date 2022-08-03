@@ -12,6 +12,7 @@ import {
   observable,
   observer,
   Reducer,
+  reduxDevtools,
   render,
   SagaRootState,
 } from '@/index';
@@ -148,3 +149,5 @@ observer(() => {
     store.dispatch(increaseSagaAction());
   }, 1000);
 });
+
+reduxDevtools(store);

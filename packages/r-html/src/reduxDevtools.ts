@@ -8,13 +8,17 @@ export function reduxDevtools<S, C>(
   config?: any
 ): Unsubscribe {
   const reduxDevtoolsExtension = Reflect.get(window, key);
-  if (!reduxDevtoolsExtension) return () => {};
-
-  const devTools = reduxDevtoolsExtension.connect(config);
-  devTools.init(store.state);
+  const devTools = reduxDevtoolsExtension?.connect(config);
+  devTools?.init(store.state);
 
   const subscription = store.dispatch$.subscribe(actions => {
-    actions.forEach(action => devTools.send(action, store.state));
+    devTools?.send(
+      {
+        type: actions.map(action => action.type).join(' |> '),
+        actions,
+      },
+      store.state
+    );
   });
 
   return () => {
