@@ -1,5 +1,6 @@
 export { observable, observer, watch } from '@/observable';
 export { nextTick } from '@/observable/scheduler';
+export { reduxDevtools } from '@/reduxDevtools';
 export { render } from '@/render';
 export * from '@/render/directives/attribute';
 export type {
