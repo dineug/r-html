@@ -2,6 +2,7 @@ import { filter, Observable, Subject, Subscription } from 'rxjs';
 
 import { flat } from '@/helpers/array';
 import { asap, safeCallback } from '@/helpers/fn';
+import { isFunction } from '@/helpers/is-type';
 import { observable, Unsubscribe } from '@/observable';
 
 export type Action<K extends keyof M, M> = {
@@ -16,7 +17,15 @@ export type AnyAction<P = any> = {
 };
 
 type RecursionGenerator<T> = Generator<T | RecursionGenerator<T>>;
-export type GeneratorActions = Array<AnyAction | RecursionGenerator<AnyAction>>;
+type GeneratorActionCreator<T, S = any, C = any> = (
+  state: S,
+  ctx: C
+) => RecursionGenerator<T>;
+export type CompositionAction =
+  | AnyAction
+  | RecursionGenerator<AnyAction>
+  | GeneratorActionCreator<AnyAction>;
+export type CompositionActions = Array<CompositionAction>;
 
 export type Reducer<S, K extends keyof M, M, C = {}> = (
   state: S,
@@ -38,11 +47,11 @@ export type DispatchOperator = (
   dispatch$: Observable<Array<AnyAction>>
 ) => Observable<Array<AnyAction>>;
 
-export type Store<S, C> = {
+export type Store<S, C = {}> = {
   context: C;
   state: S;
-  dispatch(...actions: GeneratorActions): void;
-  dispatchSync(...actions: GeneratorActions): void;
+  dispatch(...compositionActions: CompositionActions): void;
+  dispatchSync(...compositionActions: CompositionActions): void;
   dispatch$: Observable<Array<AnyAction>>;
   pipe(...operators: DispatchOperator[]): Unsubscribe;
   destroy(): void;
@@ -90,13 +99,19 @@ export function createStore<S, M, C = {}>({
     safeCallback(reducer as any, state, action.payload, context);
   };
 
-  const dispatchSync = (...generatorActions: GeneratorActions) => {
-    const actions = [...flat<AnyAction>(generatorActions)];
+  const dispatchSync = (...compositionActions: CompositionActions) => {
+    const actions = [
+      ...flat<AnyAction>(
+        compositionActions.map(action =>
+          isFunction(action) ? action(state, context) : action
+        )
+      ),
+    ];
     beforeDispatchSubject$.next(actions);
   };
 
-  const dispatch = (...generatorActions: GeneratorActions) => {
-    asap(() => dispatchSync(...generatorActions));
+  const dispatch = (...compositionActions: CompositionActions) => {
+    asap(() => dispatchSync(...compositionActions));
   };
 
   const subscription = dispatch$.subscribe(actions =>
