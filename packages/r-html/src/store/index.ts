@@ -16,15 +16,17 @@ export type AnyAction<P = any> = {
   timestamp: number;
 };
 
-export type GeneratorAction<T> = Generator<T | GeneratorAction<T>>;
-export type GeneratorActionCreator<T, S = any, C = any> = (
+export type GeneratorAction<T = AnyAction> = Generator<
+  T | GeneratorAction<T> | GeneratorActionCreator<T>
+>;
+export type GeneratorActionCreator<T = AnyAction, S = any, C = any> = (
   state: S,
   ctx: C
 ) => GeneratorAction<T>;
 export type CompositionAction =
   | AnyAction
-  | GeneratorAction<AnyAction>
-  | GeneratorActionCreator<AnyAction>;
+  | GeneratorAction
+  | GeneratorActionCreator;
 export type CompositionActions = Array<CompositionAction>;
 
 export type Reducer<S, K extends keyof M, M, C = {}> = (
