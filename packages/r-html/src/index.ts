@@ -47,6 +47,8 @@ export type {
   CompositionAction,
   CompositionActions,
   DispatchOperator,
+  GeneratorAction,
+  GeneratorActionCreator,
   Reducer,
   Store,
 } from '@/store';

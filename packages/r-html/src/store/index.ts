@@ -16,14 +16,14 @@ export type AnyAction<P = any> = {
   timestamp: number;
 };
 
-type RecursionGenerator<T> = Generator<T | RecursionGenerator<T>>;
-type GeneratorActionCreator<T, S = any, C = any> = (
+export type GeneratorAction<T> = Generator<T | GeneratorAction<T>>;
+export type GeneratorActionCreator<T, S = any, C = any> = (
   state: S,
   ctx: C
-) => RecursionGenerator<T>;
+) => GeneratorAction<T>;
 export type CompositionAction =
   | AnyAction
-  | RecursionGenerator<AnyAction>
+  | GeneratorAction<AnyAction>
   | GeneratorActionCreator<AnyAction>;
 export type CompositionActions = Array<CompositionAction>;
 
