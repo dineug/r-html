@@ -1,6 +1,5 @@
 import { filter, Observable, Subject, Subscription } from 'rxjs';
 
-import { flat } from '@/helpers/array';
 import { asap, safeCallback } from '@/helpers/fn';
 import { isFunction } from '@/helpers/is-type';
 import { observable, Unsubscribe } from '@/observable';
@@ -77,6 +76,28 @@ export const notEmptyActions = filter((actions: Array<AnyAction>) =>
   Boolean(actions.length)
 );
 
+function* compositionActionsFlat$<S, C = {}>(
+  state: S,
+  ctx: C,
+  iterator: any[]
+): Generator<AnyAction> {
+  for (const value of iterator) {
+    if (value?.[Symbol.iterator]) {
+      yield* compositionActionsFlat$(state, ctx, value);
+    } else if (isFunction(value)) {
+      yield* compositionActionsFlat$(state, ctx, value(state, ctx));
+    } else {
+      yield value;
+    }
+  }
+}
+
+export const compositionActionsFlat = <S, C = {}>(
+  state: S,
+  ctx: C,
+  compositionActions: CompositionActions
+): AnyAction[] => [...compositionActionsFlat$(state, ctx, compositionActions)];
+
 export function createStore<S, M, C = {}>({
   context,
   state: initialState,
@@ -102,13 +123,7 @@ export function createStore<S, M, C = {}>({
   };
 
   const dispatchSync = (...compositionActions: CompositionActions) => {
-    const actions = [
-      ...flat<AnyAction>(
-        compositionActions.map(action =>
-          isFunction(action) ? action(state, context) : action
-        )
-      ),
-    ];
+    const actions = compositionActionsFlat(state, context, compositionActions);
     beforeDispatchSubject$.next(actions);
   };
 

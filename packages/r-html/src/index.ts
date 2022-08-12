@@ -52,7 +52,7 @@ export type {
   Reducer,
   Store,
 } from '@/store';
-export { createAction, createStore } from '@/store';
+export { compositionActionsFlat, createAction, createStore } from '@/store';
 export type { SagaRootState } from '@/store/saga';
 export { createSaga } from '@/store/saga';
 export { html, svg } from '@/template/html';
