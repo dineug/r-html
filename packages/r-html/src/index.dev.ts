@@ -1,10 +1,7 @@
-import { put, select, takeEvery } from 'redux-saga/effects';
 import { Observable } from 'rxjs';
 
 import {
-  AnyAction,
   createAction,
-  createSaga,
   createStore,
   defineCustomElement,
   FC,
@@ -14,7 +11,6 @@ import {
   Reducer,
   reduxDevtools,
   render,
-  SagaRootState,
 } from '@/index';
 
 const Test: FC<{ count: number }> = (
@@ -103,7 +99,6 @@ interface Context {
   test: string;
 }
 
-type SelectRootState = SagaRootState<State, Context>;
 type ReducerWithType<T extends keyof ActionTypeMap> = Reducer<
   State,
   T,
@@ -112,21 +107,10 @@ type ReducerWithType<T extends keyof ActionTypeMap> = Reducer<
 >;
 
 const increaseAction = createAction<ActionTypeMap['increase']>('increase');
-const increaseSagaAction = createAction('increaseSaga');
 
 const increase: ReducerWithType<'increase'> = (state, payload, ctx) => {
   state.count = payload.num;
 };
-
-function* increaseSaga(action: AnyAction<ActionTypeSagaMap['increaseSaga']>) {
-  const { state }: SelectRootState = yield select();
-
-  yield put(increaseAction({ num: state.count + 1 }));
-}
-
-function* rootSaga() {
-  yield takeEvery(increaseSagaAction.type, increaseSaga);
-}
 
 const store = createStore<State, ActionTypeMap, Context>({
   context: {
@@ -140,13 +124,11 @@ const store = createStore<State, ActionTypeMap, Context>({
   },
 });
 
-const saga = createSaga(store, rootSaga);
-
 observer(() => {
   console.log(store.state.count);
 
-  setTimeout(() => {
-    store.dispatch(increaseSagaAction());
+  window.setTimeout(() => {
+    store.dispatch(increaseAction({ num: store.state.count + 1 }));
   }, 1000);
 });
 

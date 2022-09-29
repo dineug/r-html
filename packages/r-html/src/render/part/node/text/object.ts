@@ -1,5 +1,6 @@
-import { Observable, Subscription } from 'rxjs';
+import type { Observable, Subscription } from 'rxjs';
 
+import { isObservable } from '@/helpers/is-type';
 import { isPromise, noop, rangeNodes, removeNode } from '@/render/helper';
 import { Part } from '@/render/part';
 import {
@@ -83,8 +84,4 @@ function cancelPromise(promise: Promise<any>): [Promise<any>, () => void] {
   const cancelPromise = new Promise((_, reject) => (cancelReject = reject));
   const cancel = () => cancelReject();
   return [Promise.race([cancelPromise, promise]), cancel];
-}
-
-function isObservable(value: any): value is Observable<any> {
-  return value instanceof Observable;
 }

@@ -1,3 +1,5 @@
+import type { Observable } from 'rxjs';
+
 type typeofKey =
   | 'bigint'
   | 'boolean'
@@ -34,3 +36,22 @@ export const isPrimitive = (value: any) =>
   isSymbol(value) ||
   isUndefined(value) ||
   isNull(value);
+
+export function isObservable(value: any): value is Observable<any> {
+  if (!value) {
+    return false;
+  }
+
+  if (
+    typeof Symbol.observable === 'symbol' &&
+    typeof value[Symbol.observable] === 'function'
+  ) {
+    return value === value[Symbol.observable]();
+  }
+
+  if (typeof value['@@observable'] === 'function') {
+    return value === value['@@observable']();
+  }
+
+  return false;
+}
