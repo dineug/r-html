@@ -5,7 +5,7 @@ import { Part } from '@/render/part';
 import type { ComponentPartClass } from '@/render/part/node/component';
 import { getCurrentInstance } from '@/render/part/node/component/hooks';
 import type { FC } from '@/render/part/node/component/observableComponent';
-import { TNode } from '@/template/node';
+import { TNode } from '@/template/tNode';
 
 const originComponentCache = new WeakMap<FC, FC>();
 const hmrComponentCache = new WeakMap<FC, FC>();

@@ -4,7 +4,7 @@ export const SUFFIX_RX_EVENT = '$';
 export const PREFIX_PROPERTY = '.';
 export const PREFIX_BOOLEAN = '?';
 const PREFIX_SPREAD = '...';
-const PREFIX_MARKER = 'r-html';
+const PREFIX_MARKER = '@@r-html';
 const SUFFIX_MARKER = Math.random().toString().substring(2, 8);
 
 export const MARKER = `${PREFIX_MARKER}-${SUFFIX_MARKER}`;

@@ -2,11 +2,10 @@ import {
   insertAfterNode,
   insertBeforeNode,
   rangeNodes,
-  reCacheTemplate,
   removeNode,
 } from '@/render/helper';
 import { createTemplate, Part } from '@/render/part';
-import { templateCache, TemplateLiterals } from '@/template';
+import { TemplateLiterals, TemplateLiteralsType } from '@/template';
 import { isSVG } from '@/template/helper';
 
 export class ContainerPart implements Part {
@@ -22,14 +21,20 @@ export class ContainerPart implements Part {
     startNode?: Comment,
     endNode?: Comment
   ) {
-    const { strings, type } = templateLiterals;
-    this.#strings = strings;
-    !templateCache.has(strings) && reCacheTemplate(templateLiterals);
+    this.#strings = templateLiterals.strings;
 
-    const tpl = templateCache.get(strings);
-    if (!tpl) return;
+    if (
+      templateLiterals.type !== TemplateLiteralsType.html &&
+      templateLiterals.type !== TemplateLiteralsType.svg
+    ) {
+      return;
+    }
 
-    const [fragment, parts] = createTemplate(tpl.node, isSVG(type));
+    const [fragment, parts] = createTemplate(
+      templateLiterals.template.node,
+      isSVG(templateLiterals.type)
+    );
+
     this.#fragment = fragment;
     this.#parts = parts;
     if (startNode && endNode) {

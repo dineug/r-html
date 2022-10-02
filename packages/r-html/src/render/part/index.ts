@@ -3,7 +3,7 @@ import { createAttrPart } from '@/render/part/attribute';
 import { CommentPart } from '@/render/part/node/comment';
 import { ComponentPart } from '@/render/part/node/component';
 import { TextPart } from '@/render/part/node/text';
-import { TNode } from '@/template/node';
+import { TNode } from '@/template/tNode';
 
 export interface Part {
   commit(value: any): void;

@@ -2,7 +2,7 @@ import { insertAfterNode, insertBeforeNode } from '@/render/helper';
 import { mixinHmrComponent } from '@/render/hmr';
 import { Part } from '@/render/part';
 import { ObservableComponentPart } from '@/render/part/node/component/observableComponent';
-import { TNode } from '@/template/node';
+import { TNode } from '@/template/tNode';
 
 export interface ComponentPartClass {
   new (node: Comment, tNode: TNode, parts: Part[]): Part;

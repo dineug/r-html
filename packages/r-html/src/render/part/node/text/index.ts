@@ -12,7 +12,7 @@ import {
   isPart,
 } from '@/render/part/node/text/helper';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TNode } from '@/template/node';
+import { TNode } from '@/template/tNode';
 
 export class TextPart implements Part {
   #startNode = document.createComment('');

@@ -4,12 +4,12 @@ export interface Token {
 }
 
 export enum TokenType {
+  string = 'string',
+  whiteSpace = 'whiteSpace',
   lt = 'lt',
   gt = 'gt',
   slash = 'slash',
   equal = 'equal',
-  string = 'string',
-  whiteSpace = 'whiteSpace',
 }
 
 enum NodeType {
@@ -19,37 +19,41 @@ enum NodeType {
 }
 
 const pattern = {
-  lt: '<',
-  gt: '>',
-  slash: '/',
-  equal: '=',
   doubleQuote: `"`,
   singleQuote: `'`,
   whiteSpace: /\s/,
   string: /\S/,
   breakString: /<|>|=/,
+  lt: '<',
+  gt: '>',
+  slash: '/',
+  equal: '=',
+  hyphen: '-',
+  exclamationPoint: '!',
 };
 
 const createEqual = (type: string) => (char: string) => type === char;
 const createTest = (regexp: RegExp) => (char: string) => regexp.test(char);
 
 const match = {
-  lt: createEqual(pattern.lt),
-  gt: createEqual(pattern.gt),
-  slash: createEqual(pattern.slash),
-  equal: createEqual(pattern.equal),
   doubleQuote: createEqual(pattern.doubleQuote),
   singleQuote: createEqual(pattern.singleQuote),
   whiteSpace: createTest(pattern.whiteSpace),
   string: createTest(pattern.string),
   breakString: createTest(pattern.breakString),
+  lt: createEqual(pattern.lt),
+  gt: createEqual(pattern.gt),
+  slash: createEqual(pattern.slash),
+  equal: createEqual(pattern.equal),
+  hyphen: createEqual(pattern.hyphen),
+  exclamationPoint: createEqual(pattern.exclamationPoint),
 };
 
 const isStartCommentTag = (source: string) => (pos: number) =>
   match.lt(source[pos]) &&
-  source[pos + 1] === '!' &&
-  source[pos + 2] === '-' &&
-  source[pos + 3] === '-';
+  match.exclamationPoint(source[pos + 1]) &&
+  match.hyphen(source[pos + 2]) &&
+  match.hyphen(source[pos + 3]);
 
 export function tokenizer(source: string): Token[] {
   const tokens: Token[] = [];
@@ -65,7 +69,7 @@ export function tokenizer(source: string): Token[] {
       if (match.whiteSpace(char)) {
         let value = '';
 
-        while (match.whiteSpace(char)) {
+        while (isChar() && match.whiteSpace(char)) {
           value += char;
           char = source[++pos];
         }
@@ -104,7 +108,7 @@ export function tokenizer(source: string): Token[] {
           let value = '';
           char = source[++pos];
 
-          while (!match.doubleQuote(char)) {
+          while (isChar() && !match.doubleQuote(char)) {
             value += char;
             char = source[++pos];
           }
@@ -118,7 +122,7 @@ export function tokenizer(source: string): Token[] {
           let value = '';
           char = source[++pos];
 
-          while (!match.singleQuote(char)) {
+          while (isChar() && !match.singleQuote(char)) {
             value += char;
             char = source[++pos];
           }

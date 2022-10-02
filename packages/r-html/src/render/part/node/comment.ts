@@ -2,7 +2,7 @@ import { isNull, isPrimitive, isString, isUndefined } from '@/helpers/is-type';
 import { equalValues } from '@/render/helper';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TNode } from '@/template/node';
+import { TNode } from '@/template/tNode';
 
 export class CommentPart implements Part {
   #node: Comment;

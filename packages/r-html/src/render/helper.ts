@@ -6,10 +6,8 @@ import {
   isObject,
   isUndefined,
 } from '@/helpers/is-type';
-import { VNodeType } from '@/parser/node';
-import { TemplateLiterals, TemplateLiteralsType } from '@/template';
-import { html, svg } from '@/template/html';
-import { TAttr, TNode } from '@/template/node';
+import { VNodeType } from '@/parser/vNode';
+import { TAttr, TNode } from '@/template/tNode';
 
 type EventTuple = [
   Function,
@@ -100,14 +98,6 @@ export function rangeNodes(startNode: Node, endNode: Node) {
 
   return nodes;
 }
-
-const templateMap: Record<TemplateLiteralsType, typeof html | typeof svg> = {
-  [TemplateLiteralsType.html]: html,
-  [TemplateLiteralsType.svg]: svg,
-};
-
-export const reCacheTemplate = ({ type, strings, values }: TemplateLiterals) =>
-  templateMap[type](strings, values);
 
 export const noop = () => {};
 

@@ -15,7 +15,7 @@ import {
   isWhiteSpaceToken,
 } from '@/parser/html/helper';
 import { Token, tokenizer } from '@/parser/html/tokenizer';
-import { VAttr, VNode, VNodeType } from '@/parser/node';
+import { VAttr, VNode, VNodeType } from '@/parser/vNode';
 
 export function parser(tokens: Token[]) {
   const ast = new VNode({

@@ -53,5 +53,6 @@ export type {
   Store,
 } from '@/store';
 export { compositionActionsFlat, createAction, createStore } from '@/store';
+export { css } from '@/template/css';
 export { html, svg } from '@/template/html';
 export type { Emotion } from '@emotion/css/create-instance';

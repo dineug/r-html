@@ -6,7 +6,7 @@ import { EventPart } from '@/render/part/attribute/event';
 import { PropertyPart } from '@/render/part/attribute/property';
 import { RxEventPart } from '@/render/part/attribute/rxEvent';
 import { SpreadPart } from '@/render/part/attribute/spread';
-import { TAttr } from '@/template/node';
+import { TAttr } from '@/template/tNode';
 
 export const createAttrPart = (node: Element, attr: TAttr) =>
   attr.type === TAttrType.attribute

@@ -43,7 +43,7 @@ import {
   isPart,
 } from '@/render/part/node/text/helper';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TAttr, TNode } from '@/template/node';
+import { TAttr, TNode } from '@/template/tNode';
 
 export type Props<T = {}> = T & { children?: DocumentFragment };
 export type Context<T = {}> = T & {

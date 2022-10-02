@@ -2,7 +2,7 @@ import { isFunction } from '@/helpers/is-type';
 import { equalValues, isEventTuple } from '@/render/helper';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TAttr } from '@/template/node';
+import { TAttr } from '@/template/tNode';
 
 export class EventPart implements Part {
   #node: Element;

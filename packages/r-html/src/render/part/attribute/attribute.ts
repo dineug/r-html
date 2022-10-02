@@ -2,7 +2,7 @@ import { isNull, isPrimitive, isUndefined } from '@/helpers/is-type';
 import { equalValues } from '@/render/helper';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TAttr } from '@/template/node';
+import { TAttr } from '@/template/tNode';
 
 export class AttributePart implements Part {
   #node: Element;

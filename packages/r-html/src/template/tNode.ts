@@ -1,6 +1,6 @@
 import { MARKER, markersRegexp, nextLineRegexp, TAttrType } from '@/constants';
 import { groupBy } from '@/helpers/array';
-import { VAttr, VNode, VNodeType } from '@/parser/node';
+import { VAttr, VNode, VNodeType } from '@/parser/vNode';
 import {
   getAttrName,
   getAttrType,

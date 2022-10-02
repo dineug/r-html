@@ -10,9 +10,13 @@ import {
   SUFFIX_RX_EVENT,
   TAttrType,
 } from '@/constants';
-import { isArray } from '@/helpers/is-type';
-import { TemplateLiterals, TemplateLiteralsType } from '@/template';
-import { TAttr } from '@/template/node';
+import { isArray, isObject } from '@/helpers/is-type';
+import {
+  TemplateLiterals,
+  TemplateLiteralsType,
+  TemplateLiteralsTypes,
+} from '@/template';
+import { TAttr } from '@/template/tNode';
 
 export type MarkerTuple = [string, number];
 
@@ -26,7 +30,11 @@ export const isTemplateStringsArray = (
   isArray(value) && isArray((value as any).raw);
 
 export const isTemplateLiterals = (value: any): value is TemplateLiterals =>
-  value && isTemplateStringsArray(value.strings) && isArray(value.values);
+  value &&
+  isTemplateStringsArray(value.strings) &&
+  isArray(value.values) &&
+  TemplateLiteralsTypes.includes(value.type ?? '') &&
+  isObject(value.template);
 
 const createIsMarker =
   (marker: string, prefix = true, suffix = false) =>

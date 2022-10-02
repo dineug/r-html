@@ -1,7 +1,7 @@
 import { equalValues, isTruthy } from '@/render/helper';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TAttr } from '@/template/node';
+import { TAttr } from '@/template/tNode';
 
 export class BooleanPart implements Part {
   #node: Element;

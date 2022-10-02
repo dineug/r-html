@@ -5,7 +5,7 @@ import {
 } from '@/render/directives/attributeDirective';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TAttr } from '@/template/node';
+import { TAttr } from '@/template/tNode';
 
 const isDirective = (value: any) => value instanceof AttributeDirective;
 

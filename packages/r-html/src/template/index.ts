@@ -1,18 +1,38 @@
-import { TNode } from '@/template/node';
+import { TNode } from '@/template/tNode';
 
 export enum TemplateLiteralsType {
   html = 'html',
   svg = 'svg',
+  css = 'css',
 }
 
-export interface TemplateLiterals {
+export const TemplateLiteralsTypes = Object.values(TemplateLiteralsType);
+
+interface TL {
   strings: TemplateStringsArray;
   values: any[];
-  type: TemplateLiteralsType;
 }
+
+export interface DOMTemplateLiterals extends TL {
+  type: TemplateLiteralsType.html | TemplateLiteralsType.svg;
+  template: Template;
+}
+
+export interface CSSTemplateLiterals extends TL {
+  type: TemplateLiteralsType.css;
+  template: CSSTemplate;
+}
+
+export type TemplateLiterals = DOMTemplateLiterals | CSSTemplateLiterals;
 
 export interface Template {
   node: TNode;
 }
 
+export interface CSSTemplate {}
+
 export const templateCache = new WeakMap<TemplateStringsArray, Template>();
+export const cssTemplateCache = new WeakMap<
+  TemplateStringsArray,
+  CSSTemplate
+>();

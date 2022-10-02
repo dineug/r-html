@@ -87,10 +87,6 @@ interface ActionTypeMap {
   };
 }
 
-interface ActionTypeSagaMap {
-  increaseSaga: void;
-}
-
 interface State {
   count: number;
 }

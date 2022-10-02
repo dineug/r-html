@@ -1,5 +1,5 @@
 import { Token, TokenType } from '@/parser/html/tokenizer';
-import { VNode } from '@/parser/node';
+import { VNode } from '@/parser/vNode';
 
 type First<T> = T extends [infer U, ...any[]] ? U : any;
 

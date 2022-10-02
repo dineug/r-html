@@ -3,7 +3,7 @@ import { isEqual } from 'lodash-es';
 import { isObject } from '@/helpers/is-type';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
-import { TAttr } from '@/template/node';
+import { TAttr } from '@/template/tNode';
 
 export class SpreadPart implements Part {
   #node: any;
