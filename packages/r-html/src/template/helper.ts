@@ -9,9 +9,11 @@ import {
   SPREAD_MARKER,
   SUFFIX_RX_EVENT,
   TAttrType,
+  TEMPLATE_LITERALS,
 } from '@/constants';
 import { isArray, isObject } from '@/helpers/is-type';
 import {
+  CSSTemplateLiterals,
   TemplateLiterals,
   TemplateLiteralsType,
   TemplateLiteralsTypes,
@@ -22,7 +24,7 @@ export type MarkerTuple = [string, number];
 
 const svgTypes = [TemplateLiteralsType.svg];
 
-export const createMarker = (index: number) => `${MARKER}_${index}`;
+export const createMarker = (index: number) => `${MARKER}_${index}_`;
 
 export const isTemplateStringsArray = (
   value: any
@@ -30,11 +32,16 @@ export const isTemplateStringsArray = (
   isArray(value) && isArray((value as any).raw);
 
 export const isTemplateLiterals = (value: any): value is TemplateLiterals =>
-  value &&
+  isObject(value) &&
   isTemplateStringsArray(value.strings) &&
   isArray(value.values) &&
-  TemplateLiteralsTypes.includes(value.type ?? '') &&
-  isObject(value.template);
+  TemplateLiteralsTypes.includes(Reflect.get(value, TEMPLATE_LITERALS) ?? '');
+
+export const isCSSTemplateLiterals = (
+  value: any
+): value is CSSTemplateLiterals =>
+  isTemplateLiterals(value) &&
+  value[TEMPLATE_LITERALS] === TemplateLiteralsType.css;
 
 const createIsMarker =
   (marker: string, prefix = true, suffix = false) =>
@@ -103,4 +110,22 @@ export function getMarkers(value: string): MarkerTuple[] {
   }
 
   return markers;
+}
+
+const characters = '0123456789abcdefghijklmnopqrstuvwxyz-_';
+
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+export function generateClassSelectorName(size = 21): string {
+  let value = '_';
+
+  for (let i = 0; i < size; i++) {
+    value += characters.charAt(getRandomInt(0, characters.length));
+  }
+
+  return value;
 }

@@ -1,3 +1,6 @@
+import { DIRECTIVE } from '@/constants';
+import { DirectiveType } from '@/render/directives';
+
 export type NodeDirectiveTuple = [NodeDirectiveClass, Array<any>];
 export type NodeDirectiveCallback = () => NodeDirectiveTuple;
 
@@ -11,6 +14,7 @@ export interface NodeDirectiveClass {
 }
 
 export abstract class NodeDirective {
+  [DIRECTIVE]: DirectiveType.node;
   abstract render(args: any[]): any;
   destroy() {}
 }

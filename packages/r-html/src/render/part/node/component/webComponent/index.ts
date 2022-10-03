@@ -1,4 +1,3 @@
-import createEmotion, { Emotion } from '@emotion/css/create-instance';
 import { camelCase, kebabCase } from 'lodash-es';
 
 import {
@@ -24,17 +23,10 @@ import {
   getPropTypes,
   Options,
 } from '@/render/part/node/component/webComponent/helper';
-import {
-  isSheet,
-  isStyle,
-} from '@/render/part/node/component/webComponent/styleSheets';
 import { html } from '@/template/html';
+import { addCSSHost } from '@/template/vCSSStyleSheet';
 
-const UNSUBSCRIBE = Symbol('unsubscribe');
-const RENDER_ROOT = Symbol('renderRoot');
-const TEMPLATE = Symbol('template');
-const STYLE = Symbol('style');
-const PROPS = Symbol('props');
+const PROPS = Symbol.for('https://github.com/dineug/r-html#props');
 
 export function defineCustomElement<P = {}, C = HTMLElement>(
   name: string,
@@ -45,8 +37,6 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
   const observedPropNames = getPropNames(options.observedProps);
   const observedPropTypes = getPropTypes(options.observedProps);
   const observedDefaultProps = getDefaultProps(options.observedProps);
-  const sheet = isSheet(options) ? new CSSStyleSheet() : null;
-  sheet && sheet.replaceSync(options.style || '');
 
   const C = class extends HTMLElement {
     static get observedAttributes() {
@@ -58,12 +48,10 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
       );
     }
 
-    [UNSUBSCRIBE]: Callback | null = null;
-    [RENDER_ROOT]: ShadowRoot | HTMLElement = this;
-    [TEMPLATE]: Template;
-    [STYLE]: HTMLStyleElement | null = null;
     [PROPS] = observable<any>({}, { shallow: true });
-    emotion: Emotion;
+    #unsubscribe: Callback | null = null;
+    #renderRoot: ShadowRoot | HTMLElement = this;
+    #template: Template;
     host: HTMLElement = document.body;
 
     constructor() {
@@ -73,24 +61,13 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
         Reflect.set(this[PROPS], camelCase(name), value)
       );
 
-      options.shadow &&
-        (this[RENDER_ROOT] = this.attachShadow({ mode: options.shadow }));
-
-      this.emotion = createEmotion({
-        key: 'r',
-        container: this[RENDER_ROOT] as any,
-      });
-
-      if (isStyle(options)) {
-        const style = document.createElement('style');
-        style.textContent = options.style || '';
-        this[STYLE] = style;
+      if (options.shadow) {
+        this.#renderRoot = this.attachShadow({ mode: options.shadow });
+        addCSSHost(this.#renderRoot);
       }
 
-      sheet && ((this[RENDER_ROOT] as ShadowRoot).adoptedStyleSheets = [sheet]);
-
       setCurrentInstance(this);
-      this[TEMPLATE] = options.render.call(
+      this.#template = options.render.call(
         this as any,
         this[PROPS],
         this as any
@@ -103,19 +80,14 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
       if (rootNode instanceof ShadowRoot) {
         this.host = rootNode.host as HTMLElement;
       }
-      options.styleMap && Object.assign(this.style, options.styleMap);
+
       lifecycleHooks(this, BEFORE_MOUNT);
 
       let isMounted = false;
-      this[UNSUBSCRIBE] = observer(() => {
+      this.#unsubscribe = observer(() => {
         lifecycleHooks(this, isMounted ? BEFORE_UPDATE : BEFORE_FIRST_UPDATE);
 
-        render(
-          this[RENDER_ROOT],
-          this[STYLE]
-            ? html`${this[STYLE]}${this[TEMPLATE]()}`
-            : html`${this[TEMPLATE]()}`
-        );
+        render(this.#renderRoot, html`${this.#template()}`);
 
         if (isMounted) {
           lifecycleHooks(this, UPDATED);
@@ -129,8 +101,8 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
     }
 
     disconnectedCallback() {
-      this[UNSUBSCRIBE]?.();
-      this[UNSUBSCRIBE] = null;
+      this.#unsubscribe?.();
+      this.#unsubscribe = null;
       lifecycleHooks(this, UNMOUNTED);
     }
 

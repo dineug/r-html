@@ -1,7 +1,11 @@
 import { isNull, isPrimitive, isUndefined } from '@/helpers/is-type';
 import { equalValues } from '@/render/helper';
 import { Part } from '@/render/part';
-import { getMarkers, MarkerTuple } from '@/template/helper';
+import {
+  getMarkers,
+  isCSSTemplateLiterals,
+  MarkerTuple,
+} from '@/template/helper';
 import { TAttr } from '@/template/tNode';
 
 export class AttributePart implements Part {
@@ -27,6 +31,8 @@ export class AttributePart implements Part {
         acc.replace(
           new RegExp(this.#markerTuples[i][0]),
           isPrimitive(cur) && !isNull(cur) && !isUndefined(cur)
+            ? String(cur)
+            : isCSSTemplateLiterals(cur)
             ? String(cur)
             : ''
         ),

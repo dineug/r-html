@@ -1,4 +1,6 @@
+import { DIRECTIVE } from '@/constants';
 import { isArray, isFunction } from '@/helpers/is-type';
+import { DirectiveType } from '@/render/directives';
 import {
   AttributeDirective,
   AttributeDirectiveClass,
@@ -7,7 +9,8 @@ import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
 import { TAttr } from '@/template/tNode';
 
-const isDirective = (value: any) => value instanceof AttributeDirective;
+const isDirective = (value: any) =>
+  Reflect.get(value, DIRECTIVE) === DirectiveType.attribute;
 
 export class DirectivePart implements Part {
   #node: any;

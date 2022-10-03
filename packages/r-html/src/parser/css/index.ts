@@ -113,6 +113,7 @@ export function parser(tokens: Token[]) {
         }
 
         addChild(node)(walkNode(node, value.trim()));
+        continue;
       }
 
       pos++;

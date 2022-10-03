@@ -1,18 +1,4 @@
 import {
-  cache,
-  css,
-  cx,
-  flush,
-  getRegisteredStyles,
-  hydrate,
-  injectGlobal,
-  keyframes,
-  merge,
-  sheet,
-} from '@emotion/css';
-import { Emotion } from '@emotion/css/create-instance';
-
-import {
   BEFORE_FIRST_UPDATE,
   BEFORE_MOUNT,
   BEFORE_UPDATE,
@@ -48,7 +34,6 @@ import { TAttr, TNode } from '@/template/tNode';
 export type Props<T = {}> = T & { children?: DocumentFragment };
 export type Context<T = {}> = T & {
   host: HTMLElement;
-  emotion: Emotion;
   dispatchEvent(event: Event): boolean;
 };
 export type Template = () => any;
@@ -101,26 +86,12 @@ export class ObservableComponentPart implements Part {
   createContext(): Context {
     const ctx: Context = {
       host: document.body,
-      emotion: {
-        cache,
-        css,
-        cx,
-        flush,
-        getRegisteredStyles,
-        hydrate,
-        injectGlobal,
-        keyframes,
-        merge,
-        sheet,
-      },
       dispatchEvent: (event: Event) => this.#eventBus.dispatchEvent(event),
     };
     const rootNode = this.#startNode.getRootNode();
 
     if (rootNode instanceof ShadowRoot) {
       const host = rootNode.host as HTMLElement;
-      const emotion = Reflect.get(host, 'emotion') as Emotion | undefined;
-      emotion && (ctx.emotion = emotion);
       ctx.host = host;
     }
 

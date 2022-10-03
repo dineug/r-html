@@ -1,3 +1,6 @@
+import { DIRECTIVE } from '@/constants';
+import { DirectiveType } from '@/render/directives';
+
 export type AttributeDirectiveTuple = [AttributeDirectiveClass, Array<any>];
 export type AttributeDirectiveCallback = () => AttributeDirectiveTuple;
 
@@ -10,6 +13,7 @@ export interface AttributeDirectiveClass {
 }
 
 export abstract class AttributeDirective {
+  [DIRECTIVE]: DirectiveType.attribute;
   abstract render(args: any[]): void;
   destroy() {}
 }

@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import {
   createAction,
   createStore,
+  css,
   defineCustomElement,
   FC,
   html,
@@ -13,10 +14,7 @@ import {
   render,
 } from '@/index';
 
-const Test: FC<{ count: number }> = (
-  props,
-  { emotion: { css }, dispatchEvent }
-) => {
+const Test: FC<{ count: number }> = (props, { dispatchEvent }) => {
   const aStyles = css`
     display: flex;
   `;
@@ -36,7 +34,7 @@ const Test: FC<{ count: number }> = (
     `;
 };
 
-const MyTest: FC<{}, HTMLElement> = (props, { emotion: { css } }) => {
+const MyTest: FC<{}, HTMLElement> = props => {
   const state = observable({ count: 0, foo: 'test' });
 
   const aStyles = css`

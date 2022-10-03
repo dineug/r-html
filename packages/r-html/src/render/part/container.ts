@@ -1,3 +1,4 @@
+import { TEMPLATE_LITERALS } from '@/constants';
 import {
   insertAfterNode,
   insertBeforeNode,
@@ -24,15 +25,15 @@ export class ContainerPart implements Part {
     this.#strings = templateLiterals.strings;
 
     if (
-      templateLiterals.type !== TemplateLiteralsType.html &&
-      templateLiterals.type !== TemplateLiteralsType.svg
+      templateLiterals[TEMPLATE_LITERALS] !== TemplateLiteralsType.html &&
+      templateLiterals[TEMPLATE_LITERALS] !== TemplateLiteralsType.svg
     ) {
       return;
     }
 
     const [fragment, parts] = createTemplate(
       templateLiterals.template.node,
-      isSVG(templateLiterals.type)
+      isSVG(templateLiterals[TEMPLATE_LITERALS])
     );
 
     this.#fragment = fragment;

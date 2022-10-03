@@ -1,3 +1,4 @@
+import { TEMPLATE_LITERALS } from '@/constants';
 import { htmlParser } from '@/parser';
 import {
   DOMTemplateLiterals,
@@ -14,7 +15,7 @@ const createTagged =
     const templateLiterals = {
       strings,
       values,
-      type,
+      [TEMPLATE_LITERALS]: type,
     } as DOMTemplateLiterals;
 
     if (templateCache.has(strings)) {

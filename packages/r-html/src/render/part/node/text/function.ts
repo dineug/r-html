@@ -1,4 +1,6 @@
+import { DIRECTIVE } from '@/constants';
 import { isArray, isFunction, isNull, isUndefined } from '@/helpers/is-type';
+import { DirectiveType } from '@/render/directives';
 import {
   NodeDirective,
   NodeDirectiveClass,
@@ -11,7 +13,8 @@ import {
   isPart,
 } from '@/render/part/node/text/helper';
 
-const isDirective = (value: any) => value instanceof NodeDirective;
+const isDirective = (value: any) =>
+  Reflect.get(value, DIRECTIVE) === DirectiveType.node;
 
 export class FunctionPart implements Part {
   #startNode: Comment;

@@ -25,8 +25,6 @@ export interface Options<P = any, C = any> {
         PropOptions | Convert | typeof String | typeof Number | typeof Boolean
       >;
   shadow?: ShadowRootMode | false;
-  style?: string;
-  styleMap?: Partial<CSSStyleDeclaration>;
   render: FunctionalComponent<P, C>;
 }
 

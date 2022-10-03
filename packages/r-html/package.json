@@ -26,7 +26,6 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@emotion/css": "^11.9.0",
     "rxjs": "^7.5.5"
   }
 }

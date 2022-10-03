@@ -4,7 +4,7 @@ import { VCNode } from '@/parser/vcNode';
 
 type First<T> = T extends [infer U, ...any[]] ? U : any;
 
-const markerRegexp = new RegExp(`^${MARKER.replace('@@', '')}_\\d+$`);
+const markerRegexp = new RegExp(`^${MARKER.replace('@@', '')}_\\d+_$`);
 
 const createEqual =
   (prop: keyof Token) => (type: string) => (tokens: Token[]) => (pos: number) =>
@@ -66,6 +66,12 @@ export const isAdjacentSiblingCombinator = isPlusToken;
 export const isTypeSelector = isStringToken;
 export const isUniversalSelector = isAsteriskToken;
 
+export const isDynamicSelector = (tokens: Token[]) => (pos: number) =>
+  isCommercialAtToken(tokens)(pos) &&
+  isCommercialAtToken(tokens)(pos + 1) &&
+  isStringToken(tokens)(pos + 2) &&
+  markerRegexp.test(tokens[pos + 2].value);
+
 export const isCombinator = (tokens: Token[]) => (pos: number) =>
   isChildCombinator(tokens)(pos) ||
   isGeneralSiblingCombinator(tokens)(pos) ||
@@ -74,7 +80,8 @@ export const isCombinator = (tokens: Token[]) => (pos: number) =>
 export const isSingleSelector = (tokens: Token[]) => (pos: number) =>
   isTypeSelector(tokens)(pos) ||
   isUniversalSelector(tokens)(pos) ||
-  isAmpersandToken(tokens)(pos);
+  isAmpersandToken(tokens)(pos) ||
+  isDynamicSelector(tokens)(pos);
 
 export const isClassSelector = (tokens: Token[]) => (pos: number) =>
   isPeriodToken(tokens)(pos) && isStringToken(tokens)(pos + 1);
