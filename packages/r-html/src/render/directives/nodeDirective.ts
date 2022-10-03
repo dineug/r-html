@@ -14,7 +14,7 @@ export interface NodeDirectiveClass {
 }
 
 export abstract class NodeDirective {
-  [DIRECTIVE]: DirectiveType.node;
+  [DIRECTIVE]: DirectiveType = DirectiveType.node;
   abstract render(args: any[]): any;
   destroy() {}
 }

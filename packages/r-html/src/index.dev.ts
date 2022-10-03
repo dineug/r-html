@@ -1,5 +1,6 @@
 import {
   createAction,
+  createRef,
   createStore,
   css,
   defineCustomElement,
@@ -7,8 +8,10 @@ import {
   html,
   observable,
   observer,
+  onMounted,
   Reducer,
   reduxDevtools,
+  ref,
   render,
 } from '@/index';
 
@@ -34,6 +37,7 @@ const Test: FC<{ count: number }> = (props, { dispatchEvent }) => {
 
 const MyTest: FC<{}, HTMLElement> = props => {
   const state = observable({ count: 0, foo: 'test' });
+  const divRef = createRef();
 
   const aStyles = css`
     display: flex;
@@ -43,12 +47,16 @@ const MyTest: FC<{}, HTMLElement> = props => {
     console.log('onClick', event);
   };
 
+  onMounted(() => {
+    console.log(divRef);
+  });
+
   setInterval(() => {
     state.count++;
   }, 1000);
 
   return () => html`
-    <div foo="${state.count}" bar=${state.count}></div>
+    <div foo="${state.count}" bar=${state.count} ${ref(divRef)}></div>
     <div ?foo=${true}></div>
     <!-- 주석처리 -->
     <div id="test" class="editor foo"></div>

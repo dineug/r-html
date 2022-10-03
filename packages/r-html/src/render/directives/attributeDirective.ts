@@ -13,7 +13,7 @@ export interface AttributeDirectiveClass {
 }
 
 export abstract class AttributeDirective {
-  [DIRECTIVE]: DirectiveType.attribute;
+  [DIRECTIVE]: DirectiveType = DirectiveType.attribute;
   abstract render(args: any[]): void;
   destroy() {}
 }
