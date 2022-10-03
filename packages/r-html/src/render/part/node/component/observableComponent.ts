@@ -15,7 +15,6 @@ import { hotReloadObservable } from '@/render/hmr';
 import { createTemplate, Part } from '@/render/part';
 import { DirectivePart } from '@/render/part/attribute/directive';
 import { EventPart } from '@/render/part/attribute/event';
-import { RxEventPart } from '@/render/part/attribute/rxEvent';
 import { SpreadPart } from '@/render/part/attribute/spread';
 import {
   clearAllLifecycleHooks,
@@ -77,8 +76,6 @@ export class ObservableComponentPart implements Part {
         ? parts.push(new SpreadPart(this.#props, attr))
         : attr.type === TAttrType.event
         ? parts.push(new EventPart(this.#eventBus, attr))
-        : attr.type === TAttrType.rxEvent
-        ? parts.push(new RxEventPart(this.#eventBus, attr))
         : parts.push(new PropPart(this.#props, attr));
     });
   }

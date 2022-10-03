@@ -1,13 +1,6 @@
-import type { Observable, Subscription } from 'rxjs';
-
-import { isObservable } from '@/helpers/is-type';
 import { isPromise, noop, rangeNodes, removeNode } from '@/render/helper';
 import { Part } from '@/render/part';
-import {
-  createPart,
-  getPartType,
-  isPart,
-} from '@/render/part/node/text/helper';
+import { createPart, getPartType } from '@/render/part/node/text/helper';
 
 export class ObjectPart implements Part {
   #startNode: Comment;
@@ -15,7 +8,6 @@ export class ObjectPart implements Part {
   #value: any = null;
   #part: Part | null = null;
   #cancel = noop;
-  #subscription: Subscription | null = null;
 
   constructor(startNode: Comment, endNode: Comment) {
     this.#startNode = startNode;
@@ -28,8 +20,6 @@ export class ObjectPart implements Part {
     this.clear();
     if (isPromise(value)) {
       this.promiseCommit(value);
-    } else if (isObservable(value)) {
-      this.observableCommit(value);
     }
   }
 
@@ -46,20 +36,6 @@ export class ObjectPart implements Part {
     this.#value = promise;
   }
 
-  observableCommit(observable: Observable<any>) {
-    this.#subscription = observable.subscribe(value => {
-      const type = getPartType(value);
-      if (!isPart(type, this.#part)) {
-        this.partClear();
-        this.#part = createPart(type, this.#startNode, this.#endNode);
-      }
-
-      this.#part?.commit(value);
-    });
-
-    this.#value = observable;
-  }
-
   partClear() {
     this.#part?.destroy?.();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
@@ -67,11 +43,9 @@ export class ObjectPart implements Part {
 
   clear() {
     this.#cancel();
-    this.#subscription?.unsubscribe();
     this.#part?.destroy?.();
     rangeNodes(this.#startNode, this.#endNode).forEach(removeNode);
     this.#cancel = noop;
-    this.#subscription = null;
   }
 
   destroy() {

@@ -1,7 +1,6 @@
-import { Observable, Subject } from 'rxjs';
-
 import { safeCallback } from '@/helpers/fn';
 import { isArray, isObject } from '@/helpers/is-type';
+import { createSubject, Subject } from '@/helpers/subject';
 import { effect, watchEffect } from '@/observable/scheduler';
 import { addHmrObservable } from '@/render/hmr';
 
@@ -136,11 +135,11 @@ export function observable<T>(
   return proxy;
 }
 
-export function watch(proxy: any): Observable<PropName> {
+export function watch(proxy: any) {
   const subject =
     proxyToSubject.get(proxy) ??
     (proxyToSubject
-      .set(proxy, new Subject<PropName>())
+      .set(proxy, createSubject())
       .get(proxy) as Subject<PropName>);
 
   return subject.asObservable();

@@ -141,7 +141,7 @@ function createAttrsTuple(attrs: VAttr[] = []): AttrsTuple {
         const lastAttr = attrGroup[attrGroup.length - 1];
         const type = getAttrType(lastAttr.name);
 
-        if (type === TAttrType.event || type === TAttrType.rxEvent) {
+        if (type === TAttrType.event) {
           partAttrs.push(
             ...attrGroup
               .filter(attr => Boolean(attr.value))

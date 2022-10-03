@@ -1,6 +1,5 @@
 export const PREFIX_ON_EVENT = 'on';
 export const PREFIX_EVENT = '@';
-export const SUFFIX_RX_EVENT = '$';
 export const PREFIX_PROPERTY = '.';
 export const PREFIX_BOOLEAN = '?';
 const PREFIX_SPREAD = '...';
@@ -18,7 +17,6 @@ export enum TAttrType {
   attribute = 'attribute',
   boolean = 'boolean',
   event = 'event',
-  rxEvent = 'rxEvent',
   property = 'property',
   spread = 'spread',
   directive = 'directive',

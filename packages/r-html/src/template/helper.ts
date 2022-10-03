@@ -7,7 +7,6 @@ import {
   PREFIX_ON_EVENT,
   PREFIX_PROPERTY,
   SPREAD_MARKER,
-  SUFFIX_RX_EVENT,
   TAttrType,
   TEMPLATE_LITERALS,
 } from '@/constants';
@@ -57,11 +56,6 @@ export const isPrefixPropertyMarker = createIsMarker(PREFIX_PROPERTY);
 export const isPrefixBooleanMarker = createIsMarker(PREFIX_BOOLEAN);
 export const isPrefixEventMarker = createIsMarker(PREFIX_EVENT);
 export const isPrefixOnEventMarker = createIsMarker(PREFIX_ON_EVENT);
-export const isSuffixRxEventMarker = createIsMarker(
-  SUFFIX_RX_EVENT,
-  false,
-  true
-);
 export const isMarker = createIsMarker(MARKER, false);
 export const isMarkerOnly = (value?: string | null) =>
   isMarker(value) && markerOnlyRegexp.test(value?.trim() ?? '');
@@ -78,8 +72,6 @@ export const getAttrType = (value: string): TAttrType =>
     ? TAttrType.property
     : isPrefixEventMarker(value) || isPrefixOnEventMarker(value)
     ? TAttrType.event
-    : isSuffixRxEventMarker(value)
-    ? TAttrType.rxEvent
     : isPrefixBooleanMarker(value)
     ? TAttrType.boolean
     : TAttrType.attribute;
@@ -93,8 +85,6 @@ export const getAttrName = (value: string) =>
       isPrefixEventMarker(value) ||
       isPrefixBooleanMarker(value)
     ? (value as string).substring(1)
-    : isSuffixRxEventMarker(value)
-    ? (value as string).substring(0, (value as string).length - 1)
     : isPrefixOnEventMarker(value)
     ? (value as string).substring(2)
     : value;

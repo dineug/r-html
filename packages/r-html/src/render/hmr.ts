@@ -1,6 +1,5 @@
-import { Subject, Subscription } from 'rxjs';
-
 import { isFunction } from '@/helpers/is-type';
+import { createSubject, Unsubscribe } from '@/helpers/subject';
 import { Part } from '@/render/part';
 import type { ComponentPartClass } from '@/render/part/node/component';
 import { getCurrentInstance } from '@/render/part/node/component/hooks';
@@ -11,8 +10,7 @@ const originComponentCache = new WeakMap<FC, FC>();
 const hmrComponentCache = new WeakMap<FC, FC>();
 const hmrObservableCache = new WeakMap<Part, Array<any>>();
 const hmrObservablePrevCache = new WeakMap<Part, Array<any>>();
-const hmrSubject$ = new Subject<FC>();
-const hmr$ = hmrSubject$.asObservable();
+const hmrSubject = createSubject<FC>();
 
 let active = false;
 
@@ -26,7 +24,7 @@ function handler(event: any) {
     originComponentCache.set(newComponent, originComponent);
 
     hmrComponentCache.set(originComponent, newComponent);
-    hmrSubject$.next(originComponent);
+    hmrSubject.next(originComponent);
   }
 }
 
@@ -53,7 +51,7 @@ const hotReplaceComponent = (values: any[]): any[] =>
 export const mixinHmrComponent = (ComponentClass: ComponentPartClass) => {
   const C = class extends ComponentClass {
     #prevValues: any[] = [];
-    #hmrSubscription: Subscription | null = null;
+    #hmrUnsubscribe: Unsubscribe | null = null;
 
     constructor(node: Comment, tNode: TNode, parts: Part[]) {
       super(node, tNode, parts);
@@ -67,14 +65,14 @@ export const mixinHmrComponent = (ComponentClass: ComponentPartClass) => {
     }
 
     hmr() {
-      this.#hmrSubscription = hmr$.subscribe(
+      this.#hmrUnsubscribe = hmrSubject.subscribe(
         value =>
           this.#prevValues.includes(value) && this.commit(this.#prevValues)
       );
     }
 
     destroy() {
-      this.#hmrSubscription?.unsubscribe();
+      this.#hmrUnsubscribe?.();
       super.destroy?.();
     }
   };

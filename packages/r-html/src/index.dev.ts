@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs';
-
 import {
   createAction,
   createStore,
@@ -45,9 +43,6 @@ const MyTest: FC<{}, HTMLElement> = props => {
     console.log('onClick', event);
   };
 
-  const onClick$ = (event$: Observable<Event>) =>
-    event$.subscribe(event => console.log('onClick$', event));
-
   setInterval(() => {
     state.count++;
   }, 1000);
@@ -56,7 +51,7 @@ const MyTest: FC<{}, HTMLElement> = props => {
     <div foo="${state.count}" bar=${state.count}></div>
     <div ?foo=${true}></div>
     <!-- 주석처리 -->
-    <div id="test" class="editor foo" click$=${() => {}}></div>
+    <div id="test" class="editor foo"></div>
     <div .foo=${state.count}>
       <span>
         test${state.count}
@@ -65,7 +60,7 @@ const MyTest: FC<{}, HTMLElement> = props => {
     </div>
     <div @click=${() => {}}></div>
     <hr class="test" class=${aStyles} />
-    <${Test} .count=${state.count} @click=${onClick} click$=${onClick$}>
+    <${Test} .count=${state.count} @click=${onClick}>
       <div>FC child ${state.count}</div>
     <//>
   `;

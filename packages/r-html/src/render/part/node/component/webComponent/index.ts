@@ -24,7 +24,7 @@ import {
   Options,
 } from '@/render/part/node/component/webComponent/helper';
 import { html } from '@/template/html';
-import { addCSSHost } from '@/template/vCSSStyleSheet';
+import { addCSSHost, removeCSSHost } from '@/template/vCSSStyleSheet';
 
 const PROPS = Symbol.for('https://github.com/dineug/r-html#props');
 
@@ -61,10 +61,8 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
         Reflect.set(this[PROPS], camelCase(name), value)
       );
 
-      if (options.shadow) {
-        this.#renderRoot = this.attachShadow({ mode: options.shadow });
-        addCSSHost(this.#renderRoot);
-      }
+      options.shadow &&
+        (this.#renderRoot = this.attachShadow({ mode: options.shadow }));
 
       setCurrentInstance(this);
       this.#template = options.render.call(
@@ -79,6 +77,10 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
       const rootNode = this.getRootNode();
       if (rootNode instanceof ShadowRoot) {
         this.host = rootNode.host as HTMLElement;
+      }
+
+      if (this.#renderRoot instanceof ShadowRoot) {
+        addCSSHost(this.#renderRoot);
       }
 
       lifecycleHooks(this, BEFORE_MOUNT);
@@ -104,6 +106,9 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
       this.#unsubscribe?.();
       this.#unsubscribe = null;
       lifecycleHooks(this, UNMOUNTED);
+      if (this.#renderRoot instanceof ShadowRoot) {
+        removeCSSHost(this.#renderRoot);
+      }
     }
 
     attributeChangedCallback(

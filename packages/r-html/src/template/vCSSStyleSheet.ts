@@ -86,3 +86,7 @@ export function addCSSHost(host: Document | ShadowRoot) {
   hostToSheetsMap.set(host, []);
   updateSheets();
 }
+
+export function removeCSSHost(host: Document | ShadowRoot) {
+  hostToSheetsMap.delete(host);
+}
