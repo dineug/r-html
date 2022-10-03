@@ -11,7 +11,7 @@ export function reduxDevtools<S, C>(
   const devTools = reduxDevtoolsExtension?.connect(config);
   devTools?.init(store.state);
 
-  const subscription = store.dispatch$.subscribe(actions => {
+  const unsubscribe = store.subscribe(actions => {
     devTools?.send(
       {
         type: actions.map(action => action.type).join(' |> '),
@@ -23,6 +23,6 @@ export function reduxDevtools<S, C>(
 
   return () => {
     devTools?.unsubscribe();
-    subscription.unsubscribe();
+    unsubscribe();
   };
 }

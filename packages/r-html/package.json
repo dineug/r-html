@@ -24,8 +24,5 @@
     "build": "rollup -c",
     "test": "jest",
     "test:watch": "jest --watch"
-  },
-  "dependencies": {
-    "rxjs": "^7.5.5"
   }
 }
