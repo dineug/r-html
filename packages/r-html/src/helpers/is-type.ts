@@ -13,7 +13,7 @@ const createIsTypeof =
   (value: any): value is T =>
     typeof value === type;
 
-const isObjectRaw = createIsTypeof('object');
+export const isObjectRaw = createIsTypeof('object');
 export const isBigint = createIsTypeof<bigint>('bigint');
 export const isBoolean = createIsTypeof<boolean>('boolean');
 export const isFunction = createIsTypeof<Function>('function');

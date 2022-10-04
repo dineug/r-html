@@ -9,16 +9,43 @@ interface VCSSStyleSheet {
   styleElement: HTMLStyleElement | null;
 }
 
-const vCSSStyleSheetMap = new Map<string, VCSSStyleSheet>();
-const hostToSheetsMap = new Map<Document | ShadowRoot, Array<VCSSStyleSheet>>();
-addCSSHost(document);
+interface HostContext {
+  vSheets: VCSSStyleSheet[];
+  styleElements: HTMLStyleElement[];
+}
+
+interface CSSSharedContext {
+  vCSSStyleSheetMap: Map<string, VCSSStyleSheet>;
+  hostContextMap: Map<Document | ShadowRoot, HostContext>;
+}
+
+const CSS_SHARED_CONTEXT = Symbol.for(
+  'https://github.com/dineug/r-html#cssSharedContext'
+);
+
+const globalContext = globalThis ?? window;
+
+function getCSSSharedContext(): CSSSharedContext {
+  const ctx: CSSSharedContext | null =
+    Reflect.get(globalContext, CSS_SHARED_CONTEXT) ?? null;
+  if (ctx) return ctx;
+
+  const newCtx: CSSSharedContext = {
+    vCSSStyleSheetMap: new Map(),
+    hostContextMap: new Map(),
+  };
+
+  Reflect.set(globalContext, CSS_SHARED_CONTEXT, newCtx);
+  return newCtx;
+}
 
 export function vRender(node: TCNode, values: any[]): string {
+  const ctx = getCSSSharedContext();
   const rNode = new RCNode(node, null, values);
 
   [...rNode].forEach(node => {
     const selector = node.selector;
-    if (vCSSStyleSheetMap.has(selector)) {
+    if (ctx.vCSSStyleSheetMap.has(selector)) {
       return;
     }
 
@@ -35,7 +62,7 @@ export function vRender(node: TCNode, values: any[]): string {
       styleElement.textContent = cssText;
     }
 
-    vCSSStyleSheetMap.set(selector, {
+    ctx.vCSSStyleSheetMap.set(selector, {
       selector,
       style: node.style,
       sheet,
@@ -49,20 +76,29 @@ export function vRender(node: TCNode, values: any[]): string {
 }
 
 function updateSheets() {
-  if (supportsAdoptingStyleSheets) {
-    const sheets = [...vCSSStyleSheetMap]
-      .map(([, { sheet }]) => sheet)
-      .filter(Boolean) as CSSStyleSheet[];
+  supportsAdoptingStyleSheets ? updateStyleSheets() : updateStyleElements();
+}
 
-    [...hostToSheetsMap].forEach(([host]) => {
-      host.adoptedStyleSheets = sheets;
-    });
-  } else {
-    [...hostToSheetsMap].forEach(([host, values]) => {
-      const styleElements = [...vCSSStyleSheetMap]
-        .filter(([, vCSSStyleSheet]) => !values.includes(vCSSStyleSheet))
+function updateStyleSheets() {
+  const ctx = getCSSSharedContext();
+  const sheets = Array.from(ctx.vCSSStyleSheetMap)
+    .map(([, { sheet }]) => sheet)
+    .filter(Boolean) as CSSStyleSheet[];
+
+  Array.from(ctx.hostContextMap).forEach(([host]) => {
+    host.adoptedStyleSheets = sheets;
+  });
+}
+
+function updateStyleElements() {
+  const ctx = getCSSSharedContext();
+
+  Array.from(ctx.hostContextMap).forEach(
+    ([host, { vSheets, styleElements }]) => {
+      const newStyleElements = Array.from(ctx.vCSSStyleSheetMap)
+        .filter(([, vCSSStyleSheet]) => !vSheets.includes(vCSSStyleSheet))
         .map(([, vCSSStyleSheet]) => {
-          values.push(vCSSStyleSheet);
+          vSheets.push(vCSSStyleSheet);
 
           return vCSSStyleSheet.styleElement
             ? document.importNode(vCSSStyleSheet.styleElement)
@@ -70,23 +106,44 @@ function updateSheets() {
         })
         .filter(Boolean) as HTMLStyleElement[];
 
-      styleElements.forEach(styleElement => {
+      newStyleElements.forEach(styleElement => {
         const target = host instanceof Document ? host.head : host;
         target.appendChild(styleElement);
       });
-    });
-  }
+
+      styleElements.push(...newStyleElements);
+    }
+  );
 }
 
 export function addCSSHost(host: Document | ShadowRoot) {
-  if (hostToSheetsMap.has(host)) {
+  const ctx = getCSSSharedContext();
+  if (ctx.hostContextMap.has(host)) {
     return;
   }
 
-  hostToSheetsMap.set(host, []);
+  ctx.hostContextMap.set(host, {
+    vSheets: [],
+    styleElements: [],
+  });
   updateSheets();
 }
 
 export function removeCSSHost(host: Document | ShadowRoot) {
-  hostToSheetsMap.delete(host);
+  const ctx = getCSSSharedContext();
+  const hostContext = ctx.hostContextMap.get(host);
+  if (!hostContext) {
+    return;
+  }
+
+  if (supportsAdoptingStyleSheets) {
+    host.adoptedStyleSheets = [];
+  } else {
+    const target = host instanceof Document ? host.head : host;
+    hostContext.styleElements.forEach(styleElement =>
+      target.removeChild(styleElement)
+    );
+  }
+
+  ctx.hostContextMap.delete(host);
 }

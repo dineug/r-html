@@ -55,3 +55,4 @@ export type {
 export { compositionActionsFlat, createAction, createStore } from '@/store';
 export { css } from '@/template/css';
 export { html, svg } from '@/template/html';
+export { addCSSHost, removeCSSHost } from '@/template/vCSSStyleSheet';

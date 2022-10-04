@@ -61,6 +61,24 @@ export function setProps(props: any, { type, name, value }: TAttr) {
 export const equalValues = (a: any[], b: any[]) =>
   a.length === b.length && a.every((v, i) => v === b[i]);
 
+export function isEqualShallowObject(a: any, b: any) {
+  if (a === b) {
+    return true;
+  }
+
+  const prevValue = isObject(a) ? a : {};
+  const newValue = isObject(b) ? b : {};
+  const prevKeys = Object.keys(prevValue);
+  const newKeys = Object.keys(newValue);
+
+  return (
+    prevKeys.length === newKeys.length &&
+    newKeys.every(
+      key => Reflect.get(prevValue, key) === Reflect.get(newValue, key)
+    )
+  );
+}
+
 export const isEventTuple = (value: EventTuple) =>
   isArray(value) &&
   isFunction(value[0]) &&
