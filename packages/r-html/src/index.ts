@@ -3,21 +3,9 @@ export { nextTick } from '@/observable/scheduler';
 export { reduxDevtools } from '@/reduxDevtools';
 export { render } from '@/render';
 export * from '@/render/directives/attribute';
-export type {
-  AttributeDirectiveCallback,
-  AttributeDirectiveClass,
-  AttributeDirectiveProps,
-  AttributeDirectiveTuple,
-} from '@/render/directives/attributeDirective';
-export { AttributeDirective } from '@/render/directives/attributeDirective';
+export { createAttributeDirective } from '@/render/directives/attributeDirective';
 export * from '@/render/directives/node';
-export type {
-  NodeDirectiveCallback,
-  NodeDirectiveClass,
-  NodeDirectiveProps,
-  NodeDirectiveTuple,
-} from '@/render/directives/nodeDirective';
-export { NodeDirective } from '@/render/directives/nodeDirective';
+export { createNodeDirective } from '@/render/directives/nodeDirective';
 export { hmr } from '@/render/hmr';
 export { NoopComponent } from '@/render/part/node/component/helper';
 export {

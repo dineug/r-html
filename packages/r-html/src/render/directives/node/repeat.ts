@@ -1,8 +1,4 @@
-import {
-  NodeDirective,
-  NodeDirectiveCallback,
-  NodeDirectiveProps,
-} from '@/render/directives/nodeDirective';
+import { createNodeDirective } from '@/render/directives/nodeDirective';
 import {
   insertAfterNode,
   insertBeforeNode,
@@ -17,80 +13,85 @@ import {
   PartType,
 } from '@/render/part/node/text/helper';
 
-export function repeat<T>(
+type RepeatFn = <T>(
   list: T[],
   getKey: (value: T) => any,
   getResult: (value: T, index: number, array: T[]) => any
-): NodeDirectiveCallback {
-  list.length; // observable dependency
-  return () => [Repeat, [list, getKey, getResult]];
-}
+) => [T[], (value: T) => any, (value: T, index: number, array: T[]) => any];
 
-class Repeat extends NodeDirective {
-  #startNode: Comment;
-  #endNode: Comment;
-  #parts: ItemPart[] = [];
+export const repeat = createNodeDirective<RepeatFn>(
+  <T>(
+    list: T[],
+    getKey: (value: T) => any,
+    getResult: (value: T, index: number, array: T[]) => any
+  ) => {
+    list.length; // observable dependency
+    return [list, getKey, getResult];
+  },
+  ({ startNode, endNode }) => {
+    let parts: ItemPart[] = [];
 
-  constructor({ startNode, endNode }: NodeDirectiveProps) {
-    super();
-    this.#startNode = startNode;
-    this.#endNode = endNode;
+    const destroy = () => {
+      parts.forEach(part => part.destroy());
+    };
+
+    return ([list, getKey, getResult]) => {
+      const values = list.map((value, index, array) => ({
+        key: getKey(value),
+        value: getResult(value, index, array),
+      }));
+      const diff = difference(
+        parts.map(({ type, key }) => ({ type, key })),
+        values.map(({ key, value }) => ({ type: getPartType(value), key }))
+      );
+      const arrayLike: any = { length: values.length };
+
+      diff.update.forEach(({ action, from, to }) => {
+        switch (action) {
+          case Action.create:
+            const node = document.createComment('');
+
+            to === 0
+              ? insertAfterNode(node, startNode)
+              : parts.length
+              ? insertAfterNode(
+                  node,
+                  arrayLike[to - 1]
+                    ? arrayLike[to - 1].endNode
+                    : parts[to - 1].endNode
+                )
+              : insertBeforeNode(node, endNode);
+
+            arrayLike[to] = new ItemPart(
+              node,
+              values[to].value,
+              values[to].key
+            );
+            break;
+          case Action.move:
+            arrayLike[to] = parts[from];
+            if (to === from) return;
+
+            to === 0
+              ? parts[from].insert('after', startNode)
+              : parts[from].insert(
+                  'after',
+                  arrayLike[to - 1]
+                    ? arrayLike[to - 1].endNode
+                    : parts[to - 1].endNode
+                );
+            break;
+        }
+      });
+      diff.delete.forEach(({ from }) => parts[from].destroy());
+
+      parts = Array.from(arrayLike);
+      parts.forEach((part, index) => part.commit(values[index].value));
+
+      return destroy;
+    };
   }
-
-  render([list, getKey, getResult]: Parameters<typeof repeat>) {
-    const values = list.map((value, index, array) => ({
-      key: getKey(value),
-      value: getResult(value, index, array),
-    }));
-    const diff = difference(
-      this.#parts.map(({ type, key }) => ({ type, key })),
-      values.map(({ key, value }) => ({ type: getPartType(value), key }))
-    );
-    const arrayLike: any = { length: values.length };
-
-    diff.update.forEach(({ action, from, to }) => {
-      switch (action) {
-        case Action.create:
-          const node = document.createComment('');
-
-          to === 0
-            ? insertAfterNode(node, this.#startNode)
-            : this.#parts.length
-            ? insertAfterNode(
-                node,
-                arrayLike[to - 1]
-                  ? arrayLike[to - 1].endNode
-                  : this.#parts[to - 1].endNode
-              )
-            : insertBeforeNode(node, this.#endNode);
-
-          arrayLike[to] = new ItemPart(node, values[to].value, values[to].key);
-          break;
-        case Action.move:
-          arrayLike[to] = this.#parts[from];
-          if (to === from) return;
-
-          to === 0
-            ? this.#parts[from].insert('after', this.#startNode)
-            : this.#parts[from].insert(
-                'after',
-                arrayLike[to - 1]
-                  ? arrayLike[to - 1].endNode
-                  : this.#parts[to - 1].endNode
-              );
-          break;
-      }
-    });
-    diff.delete.forEach(({ from }) => this.#parts[from].destroy());
-
-    this.#parts = Array.from(arrayLike);
-    this.#parts.forEach((part, index) => part.commit(values[index].value));
-  }
-
-  destroy() {
-    this.#parts.forEach(part => part.destroy());
-  }
-}
+) as unknown as RepeatFn;
 
 class ItemPart implements Part {
   #part: Part;

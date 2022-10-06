@@ -1,22 +1,31 @@
 import { DIRECTIVE } from '@/constants';
-import { isArray, isFunction } from '@/helpers/is-type';
-import { DirectiveType } from '@/render/directives';
+import { isArray } from '@/helpers/is-type';
 import {
-  AttributeDirective,
-  AttributeDirectiveClass,
-} from '@/render/directives/attributeDirective';
+  Directive,
+  DirectiveCreator,
+  DirectiveFunction,
+  DirectiveTuple,
+  DirectiveType,
+} from '@/render/directives';
+import { AttributeDirectiveProps } from '@/render/directives/attributeDirective';
 import { Part } from '@/render/part';
 import { getMarkers, MarkerTuple } from '@/template/helper';
 import { TAttr } from '@/template/tNode';
 
-const isDirective = (value: any) =>
-  Reflect.get(value, DIRECTIVE) === DirectiveType.attribute;
+const isDirective = (
+  value: any
+): value is DirectiveTuple<AttributeDirectiveProps, DirectiveFunction> =>
+  isArray(value) && Reflect.get(value, DIRECTIVE) === DirectiveType.attribute;
 
 export class DirectivePart implements Part {
   #node: any;
   #markerTuple: MarkerTuple;
-  #DirectiveClass: AttributeDirectiveClass | null = null;
-  #directive: AttributeDirective | null = null;
+  #directiveCreator: DirectiveCreator<
+    AttributeDirectiveProps,
+    DirectiveFunction
+  > | null = null;
+  #directive: Directive<DirectiveFunction> | null = null;
+  #directiveDestroy: (() => void) | void | null = null;
 
   constructor(node: any, { name }: TAttr) {
     this.#node = node;
@@ -26,31 +35,25 @@ export class DirectivePart implements Part {
   commit(values: any[]) {
     const [, index] = this.#markerTuple;
     const newValue = values[index];
-    if (!isFunction(newValue)) return;
+    if (!isDirective(newValue)) return;
 
-    const directiveTuple = newValue();
-    if (!isArray(directiveTuple)) return;
+    const [value, directiveCreator] = newValue;
 
-    const [DirectiveClass, args] = directiveTuple;
-    if (!isFunction(DirectiveClass) || !isArray(args)) return;
-
-    if (this.#DirectiveClass !== DirectiveClass) {
-      this.clear();
-      const directive = new DirectiveClass({ node: this.#node });
-
-      if (!isDirective(directive)) return;
-      this.#directive = directive;
-      this.#DirectiveClass = DirectiveClass;
+    if (this.#directiveCreator !== directiveCreator) {
+      this.#directiveDestroy?.();
+      this.#directive = directiveCreator({ node: this.#node });
+      this.#directiveCreator = directiveCreator;
+      this.#directiveDestroy = this.#directive?.(value);
+    } else {
+      const directiveDestroy = this.#directive?.(value);
+      if (this.#directiveDestroy !== directiveDestroy) {
+        this.#directiveDestroy?.();
+        this.#directiveDestroy = directiveDestroy;
+      }
     }
-
-    this.#directive?.render(args);
-  }
-
-  clear() {
-    this.#directive?.destroy();
   }
 
   destroy() {
-    this.clear();
+    this.#directiveDestroy?.();
   }
 }

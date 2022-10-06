@@ -1,8 +1,4 @@
-import {
-  AttributeDirective,
-  AttributeDirectiveCallback,
-  AttributeDirectiveProps,
-} from '@/render/directives/attributeDirective';
+import { createAttributeDirective } from '@/render/directives/attributeDirective';
 
 export interface Ref<T = unknown> {
   value: T;
@@ -10,29 +6,25 @@ export interface Ref<T = unknown> {
 
 export const createRef = <T>(value?: T): Ref<T> => ({ value } as Ref<T>);
 
-export function ref<T>(refObject: Ref<T>): AttributeDirectiveCallback {
-  return () => [RefDirective, [refObject]];
-}
+type RefFn = <T>(refObject: Ref<T>) => Ref<T>;
 
-class RefDirective extends AttributeDirective {
-  #node: any;
-  #refObject: Ref<any> | null = null;
+export const ref = createAttributeDirective(
+  <T>(refObject: Ref<T>) => refObject,
+  ({ node }) => {
+    let prevRefObject: Ref<any> | null = null;
 
-  constructor({ node }: AttributeDirectiveProps) {
-    super();
-    this.#node = node;
+    const destroy = () => {
+      if (!prevRefObject) return;
+      prevRefObject.value = null;
+    };
+
+    return refObject => {
+      if (prevRefObject === refObject) return destroy;
+
+      refObject.value = node;
+      prevRefObject = refObject;
+
+      return destroy;
+    };
   }
-
-  render([refObject]: Parameters<typeof ref>) {
-    if (this.#refObject === refObject) return;
-
-    refObject.value = this.#node;
-    this.#refObject = refObject;
-  }
-
-  destroy() {
-    if (this.#refObject) {
-      this.#refObject.value = null;
-    }
-  }
-}
+) as unknown as RefFn;

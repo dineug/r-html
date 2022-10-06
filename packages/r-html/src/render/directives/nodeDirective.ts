@@ -1,20 +1,29 @@
-import { DIRECTIVE } from '@/constants';
-import { DirectiveType } from '@/render/directives';
-
-export type NodeDirectiveTuple = [NodeDirectiveClass, Array<any>];
-export type NodeDirectiveCallback = () => NodeDirectiveTuple;
+import {
+  createDirectiveTuple,
+  DirectiveCreator,
+  DirectiveFunction,
+  DirectiveTuple,
+  DirectiveType,
+} from '@/render/directives';
 
 export interface NodeDirectiveProps {
   startNode: Comment;
   endNode: Comment;
 }
 
-export interface NodeDirectiveClass {
-  new (props: NodeDirectiveProps): NodeDirective;
-}
-
-export abstract class NodeDirective {
-  [DIRECTIVE]: DirectiveType = DirectiveType.node;
-  abstract render(args: any[]): any;
-  destroy() {}
+export function createNodeDirective<
+  F extends DirectiveFunction,
+  D extends DirectiveCreator<NodeDirectiveProps, F> = DirectiveCreator<
+    NodeDirectiveProps,
+    F
+  >
+>(
+  f: F,
+  directive: D
+): (...args: Parameters<F>) => DirectiveTuple<NodeDirectiveProps, F> {
+  return (...args: Parameters<F>) =>
+    createDirectiveTuple<NodeDirectiveProps, F, D>(DirectiveType.node, [
+      f(...args),
+      directive,
+    ]);
 }

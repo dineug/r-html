@@ -1,19 +1,28 @@
-import { DIRECTIVE } from '@/constants';
-import { DirectiveType } from '@/render/directives';
-
-export type AttributeDirectiveTuple = [AttributeDirectiveClass, Array<any>];
-export type AttributeDirectiveCallback = () => AttributeDirectiveTuple;
+import {
+  createDirectiveTuple,
+  DirectiveCreator,
+  DirectiveFunction,
+  DirectiveTuple,
+  DirectiveType,
+} from '@/render/directives';
 
 export interface AttributeDirectiveProps {
   node: any;
 }
 
-export interface AttributeDirectiveClass {
-  new (props: AttributeDirectiveProps): AttributeDirective;
-}
-
-export abstract class AttributeDirective {
-  [DIRECTIVE]: DirectiveType = DirectiveType.attribute;
-  abstract render(args: any[]): void;
-  destroy() {}
+export function createAttributeDirective<
+  F extends DirectiveFunction,
+  D extends DirectiveCreator<AttributeDirectiveProps, F> = DirectiveCreator<
+    AttributeDirectiveProps,
+    F
+  >
+>(
+  f: F,
+  directive: D
+): (...args: Parameters<F>) => DirectiveTuple<AttributeDirectiveProps, F> {
+  return (...args: Parameters<F>) =>
+    createDirectiveTuple<AttributeDirectiveProps, F, D>(
+      DirectiveType.attribute,
+      [f(...args), directive]
+    );
 }
