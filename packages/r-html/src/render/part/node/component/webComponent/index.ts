@@ -1,5 +1,3 @@
-import { camelCase, kebabCase } from 'lodash-es';
-
 import {
   BEFORE_FIRST_UPDATE,
   BEFORE_MOUNT,
@@ -11,6 +9,7 @@ import {
 } from '@/constants';
 import { observable, observer } from '@/observable';
 import { render } from '@/render';
+import { camelCase, kebabCase } from '@/render/helper';
 import {
   Callback,
   lifecycleHooks,

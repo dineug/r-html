@@ -124,3 +124,14 @@ export const isHTMLElement = (value: any): value is HTMLElement =>
 
 export const isPromise = (value: any): value is Promise<any> =>
   value instanceof Promise;
+
+export const kebabCase = (value: string): string =>
+  value
+    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+    ?.join('-')
+    .toLowerCase() ?? '';
+
+export const camelCase = (value: string): string =>
+  value.replace(/^([A-Z])|[\s-_](\w)/g, (_, p1, p2) =>
+    p2 ? p2.toUpperCase() : p1.toLowerCase()
+  );
