@@ -142,5 +142,5 @@ export function watch(proxy: any) {
       .set(proxy, createSubject())
       .get(proxy) as Subject<PropName>);
 
-  return subject.asObservable();
+  return subject.asReadonly();
 }

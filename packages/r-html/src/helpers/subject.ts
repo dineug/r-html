@@ -4,7 +4,7 @@ export type Unsubscribe = () => void;
 export type Subject<T> = {
   subscribe: (fn: Observer<T>) => Unsubscribe;
   next: (value: T) => void;
-  asObservable: () => Pick<Subject<T>, 'subscribe'>;
+  asReadonly: () => Pick<Subject<T>, 'subscribe'>;
 };
 
 export function createSubject<T>(): Subject<T> {
@@ -26,11 +26,11 @@ export function createSubject<T>(): Subject<T> {
     observers.forEach(fn => fn(value));
   };
 
-  const asObservable = () => ({ subscribe });
+  const asReadonly = () => ({ subscribe });
 
   return {
     subscribe,
     next,
-    asObservable,
+    asReadonly,
   };
 }

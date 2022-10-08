@@ -93,7 +93,7 @@ export const compositionActionsFlat = <S, C = {}>(
   compositionActions: CompositionActions
 ): AnyAction[] => [...compositionActionsFlat$(state, ctx, compositionActions)];
 
-const pipe$ =
+const pipe =
   (...operators: DispatchOperator[]) =>
   (initSource: Generator<Array<AnyAction>>) =>
     operators.reduce((source, operator) => operator(source), initSource);
@@ -118,18 +118,7 @@ export function createStore<S, M, C = {}>({
   const state = observable(initialState);
   const beforeSubject = createSubject<Array<AnyAction>>();
   const subject = createSubject<Array<AnyAction>>();
-  let operator: DispatchOperator = pipe$(notEmptyActions);
-  let connectUnsubscribe: Unsubscribe | null = null;
-
-  const connect = () => {
-    connectUnsubscribe?.();
-    connectUnsubscribe = beforeSubject.subscribe(actions => {
-      const iter = operator(createSource(actions));
-      for (const value of iter) {
-        subject.next(value);
-      }
-    });
-  };
+  let operator: DispatchOperator = pipe(notEmptyActions);
 
   const runReducer = (action: AnyAction) => {
     const reducer = Reflect.get(reducers, action.type, reducers);
@@ -145,24 +134,27 @@ export function createStore<S, M, C = {}>({
     asap(() => dispatchSync(...compositionActions));
   };
 
+  const connectUnsubscribe = beforeSubject.subscribe(actions => {
+    const iter = operator(createSource(actions));
+    for (const value of iter) {
+      subject.next(value);
+    }
+  });
+
   const unsubscribe = subject.subscribe(actions => actions.forEach(runReducer));
 
-  const pipe = (...operators: DispatchOperator[]): Unsubscribe => {
-    operator = pipe$(...operators, notEmptyActions);
-    connect();
+  const _pipe = (...operators: DispatchOperator[]): Unsubscribe => {
+    operator = pipe(...operators, notEmptyActions);
 
     return () => {
-      operator = pipe$(notEmptyActions);
-      connect();
+      operator = pipe(notEmptyActions);
     };
   };
 
   const destroy = () => {
-    connectUnsubscribe?.();
+    connectUnsubscribe();
     unsubscribe();
   };
-
-  connect();
 
   return {
     context,
@@ -170,7 +162,7 @@ export function createStore<S, M, C = {}>({
     dispatch,
     dispatchSync,
     subscribe: subject.subscribe,
-    pipe,
+    pipe: _pipe,
     destroy,
   };
 }
