@@ -20,9 +20,7 @@
   "author": "SeungHwan-Lee <dineug2@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "serve": "vite",
-    "build": "rollup -c",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "dev": "vite",
+    "build": "rollup -c"
   }
 }

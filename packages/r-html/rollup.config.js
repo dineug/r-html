@@ -45,5 +45,4 @@ export default {
       showBrotliSize: true,
     }),
   ],
-  external: ['rxjs', '@emotion/css', 'redux-saga', '@redux-saga/symbols'],
 };

@@ -41,6 +41,7 @@
   },
   "extensions": {
     "recommendations": [
+      "arcanis.vscode-zipfs",
       "editorconfig.editorconfig",
       "davidanson.vscode-markdownlint",
       "dbaeumer.vscode-eslint",
