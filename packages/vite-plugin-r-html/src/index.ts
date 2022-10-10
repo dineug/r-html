@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as t from '@babel/core';
 import { createFilter } from '@rollup/pluginutils';
 import type { Plugin } from 'vite';
@@ -38,6 +39,7 @@ function rHtml(options: Options = {}): Plugin {
         filename: id,
       });
 
+      // @ts-ignore
       const isBoundary = result?.ast?.program.body.every(node => {
         if (node.type !== 'ExportNamedDeclaration') {
           return true;
@@ -46,6 +48,7 @@ function rHtml(options: Options = {}): Plugin {
 
         if (declaration) {
           if (declaration.type === 'VariableDeclaration') {
+            // @ts-ignore
             return declaration.declarations.every(variable =>
               isComponentLikeIdentifier(variable.id)
             );
@@ -56,6 +59,7 @@ function rHtml(options: Options = {}): Plugin {
             );
           }
         }
+        // @ts-ignore
         return specifiers.every(spec => {
           return isComponentLikeIdentifier(spec.exported);
         });
@@ -66,6 +70,7 @@ function rHtml(options: Options = {}): Plugin {
       }
 
       const node = result?.ast?.program.body.find(
+        // @ts-ignore
         node => node.type === 'ExportDefaultDeclaration'
       );
 
