@@ -110,6 +110,7 @@ const createAdd =
   (target: VCNode) =>
   (value: First<VCNode[K]> | null) => {
     if (!value) return;
+    // @ts-ignore
     target[prop] ? target[prop]?.push(value) : (target[prop] = [value]);
   };
 

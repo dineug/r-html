@@ -79,7 +79,7 @@ export const getPropTypes = (
         .map(name => {
           const value = observedProps[name];
           return isObject<PropOptions>(value)
-            ? [name, Reflect.get(value, 'type')]
+            ? [name, Reflect.get(value, 'type') as any]
             : [name, value];
         });
 
