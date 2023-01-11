@@ -38,6 +38,10 @@ export class TCNode {
     return Boolean(this.value?.startsWith('&'));
   }
 
+  get isAtRule(): boolean {
+    return this.type === VCNodeType.atRule;
+  }
+
   constructor(node: VCNode, parent: TCNode | null = null) {
     this.type = node.type;
     this.value = node.value;

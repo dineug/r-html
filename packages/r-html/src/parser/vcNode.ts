@@ -1,6 +1,7 @@
 export enum VCNodeType {
   style = 'style',
   comment = 'comment',
+  atRule = 'atRule',
 }
 
 export interface VCProperty {

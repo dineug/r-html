@@ -1,6 +1,5 @@
 {
   "name": "@dineug/vite-plugin-r-html",
-  "private": true,
   "version": "0.1.0",
   "main": "dist/vite-plugin-r-html.js",
   "typings": "types/index.d.ts",

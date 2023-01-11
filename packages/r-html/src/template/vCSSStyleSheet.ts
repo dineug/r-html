@@ -54,7 +54,10 @@ export function vRender(node: TCNode, values: any[]): string {
       ? null
       : document.createElement('style');
 
-    const cssText = `${selector} { ${node.style} }`;
+    const cssText =
+      node.isAtRule && !node.style
+        ? `${selector}`
+        : `${selector} {\n${node.style}}`;
 
     if (sheet) {
       sheet.replaceSync(cssText);

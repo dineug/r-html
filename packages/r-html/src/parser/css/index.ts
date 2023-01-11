@@ -1,6 +1,7 @@
 import {
   addChild,
   addProperty,
+  isAtRule,
   isDynamicProperty,
   isEndMultiCommentValue,
   isEndSingleCommentValue,
@@ -8,6 +9,7 @@ import {
   isProperty,
   isRightBraceToken,
   isSelector,
+  isSemicolonToken,
   isStartMultiCommentValue,
   isStartSingleCommentValue,
 } from '@/parser/css/helper';
@@ -27,10 +29,16 @@ export function parser(tokens: Token[]) {
   const endMultiCommentValue = isEndMultiCommentValue(tokens);
   const startSingleCommentValue = isStartSingleCommentValue(tokens);
   const endSingleCommentValue = isEndSingleCommentValue(tokens);
+  const atRule = isAtRule(tokens);
+  const semicolonToken = isSemicolonToken(tokens);
 
-  const walkNode = (parent: VCNode | null, value?: string) => {
+  const walkNode = (
+    parent: VCNode | null,
+    value?: string,
+    type = VCNodeType.style
+  ) => {
     const node = new VCNode({
-      type: VCNodeType.style,
+      type,
       parent,
       value,
     });
@@ -102,6 +110,32 @@ export function parser(tokens: Token[]) {
         );
 
         pos++;
+        continue;
+      } else if (atRule(pos)) {
+        let value = token.value;
+        token = tokens[++pos];
+
+        while (isToken() && !leftBraceToken(pos) && !semicolonToken(pos)) {
+          value += token.value;
+          token = tokens[++pos];
+        }
+
+        if (semicolonToken(pos)) {
+          value += ';';
+
+          addChild(node)(
+            new VCNode({
+              type: VCNodeType.atRule,
+              parent: node,
+              value,
+            })
+          );
+
+          pos++;
+          continue;
+        }
+
+        addChild(node)(walkNode(node, value.trim(), VCNodeType.atRule));
         continue;
       } else if (selector(pos)) {
         let value = token.value;

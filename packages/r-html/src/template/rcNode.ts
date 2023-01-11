@@ -41,6 +41,10 @@ export class RCNode {
       .join(' ');
   }
 
+  get isAtRule(): boolean {
+    return this.type === VCNodeType.atRule;
+  }
+
   constructor(node: TCNode, parent: RCNode | null = null, values: any[]) {
     this.type = node.type;
     this.value = node.value;
@@ -59,6 +63,10 @@ export class RCNode {
       this.skipParent = true;
     }
 
+    if (this.value && node.isAtRule && this.parent) {
+      this.skipParent = true;
+    }
+
     const [style, childrenTuples] = getStyleChildrenTuple(node, values);
 
     if (node.children) {
@@ -69,8 +77,23 @@ export class RCNode {
 
     this.style = style;
     this.children = childrenTuples
-      .filter(([child]) => child.type === VCNodeType.style)
+      .filter(
+        ([child]) =>
+          child.type === VCNodeType.style || child.type === VCNodeType.atRule
+      )
       .map(([child, values]) => new RCNode(child, this, values));
+
+    if (this.value && node.isAtRule && this.parent && node.children) {
+      let atRuleStyle = '';
+
+      for (const child of this.children) {
+        if (child.value) {
+          atRuleStyle += `${child.value} {\n${child.style}}\n`;
+        }
+      }
+
+      this.style = atRuleStyle;
+    }
   }
 
   toString(isSelector = false) {
@@ -98,7 +121,11 @@ export class RCNode {
     yield this;
     if (!this.children) return;
     for (const node of this.children) {
-      yield* node;
+      if (node.isAtRule) {
+        yield node;
+      } else {
+        yield* node;
+      }
     }
   }
 }

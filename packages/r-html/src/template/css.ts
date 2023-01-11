@@ -1,4 +1,5 @@
 import { TEMPLATE_LITERALS } from '@/constants';
+import { isUndefined } from '@/helpers/is-type';
 import { cssParser } from '@/parser';
 import {
   CSSTemplate,
@@ -29,12 +30,13 @@ export const css = (
     return Object.freeze(templateLiterals);
   }
 
-  const tpl = strings
+  const tpl = strings.raw
     .reduce<Array<string>>((acc, cur, i) => {
       i < values.length ? acc.push(cur, createMarker(i)) : acc.push(cur);
       return acc;
     }, [])
     .join('');
+
   const node = createTCNode(cssParser(tpl));
   const identifier = vRender(node, values);
 

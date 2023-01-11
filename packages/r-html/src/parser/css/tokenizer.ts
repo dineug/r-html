@@ -301,13 +301,15 @@ export function tokenizer(source: string): Token[] {
         }
 
         if (match.leftParent(char)) {
-          tokens.push({ type: TokenType.leftParent, value: char });
-          pos++;
-          continue;
-        }
+          let value = '';
 
-        if (match.rightParent(char)) {
-          tokens.push({ type: TokenType.rightParent, value: char });
+          while (isChar() && !match.rightParent(char)) {
+            value += char;
+            char = source[++pos];
+          }
+          value += char;
+
+          tokens.push({ type: TokenType.string, value });
           pos++;
           continue;
         }
