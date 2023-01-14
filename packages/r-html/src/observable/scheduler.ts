@@ -13,13 +13,17 @@ import {
 interface Task {
   type: 'observer' | 'nextTick';
   fn: Observer | VoidFunction;
+  tickCount: number;
 }
+
+const EXPIRATION_TICK = 3;
 
 const queue: Task[] = [];
 const watchQueue = new Map<any, Array<PropName>>();
 const idleOptions = { timeout: 16 };
 
 let executable = true;
+let tickCount = 0;
 
 function isTrigger(raw: any, p: PropName, observer: Observer) {
   const triggers = observerToTriggers.get(observer);
@@ -33,7 +37,7 @@ const isQueue = (f: Observer | VoidFunction) =>
   Boolean(queue.find(({ fn }) => fn === f));
 
 const createNextTick = (type: Task['type']) => (fn: VoidFunction) => {
-  isQueue(fn) || queue.push({ type, fn });
+  isQueue(fn) || queue.push({ type, fn, tickCount });
 
   if (executable) {
     asap(execute);
@@ -53,7 +57,7 @@ export const effect = (raw: any, p: PropName) =>
 
 function runTask() {
   const task = queue.shift();
-  if (!task) return false;
+  if (!task) return;
 
   if (task.type === 'observer') {
     unobserve(task.fn);
@@ -62,7 +66,14 @@ function runTask() {
     safeCallback(task.fn);
   }
 
-  return true;
+  if (isNextTaskExpires()) {
+    runTask();
+  }
+}
+
+function isNextTaskExpires() {
+  const task = queue[0];
+  return task ? EXPIRATION_TICK < tickCount - task.tickCount : false;
 }
 
 function executeIdle() {
@@ -72,9 +83,11 @@ function executeIdle() {
     } while (queue.length && deadline.timeRemaining() > 0);
 
     if (queue.length) {
+      tickCount++;
       window.requestIdleCallback(run, idleOptions);
     } else {
       executable = true;
+      tickCount = 0;
     }
   };
 
@@ -86,6 +99,7 @@ function executeAsap() {
     runTask();
   }
   executable = true;
+  tickCount = 0;
 }
 
 function execute() {

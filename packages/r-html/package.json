@@ -2,6 +2,7 @@
   "name": "@dineug/r-html",
   "version": "0.1.0",
   "main": "dist/r-html.js",
+  "module": "dist/r-html.esm.js",
   "browser": "dist/r-html.min.js",
   "typings": "types/index.d.ts",
   "files": [
