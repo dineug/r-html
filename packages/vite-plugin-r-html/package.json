@@ -1,6 +1,7 @@
 {
   "name": "@dineug/vite-plugin-r-html",
   "version": "0.1.0",
+  "description": "vite r-html hmr plugin",
   "main": "dist/vite-plugin-r-html.js",
   "typings": "types/index.d.ts",
   "files": [
