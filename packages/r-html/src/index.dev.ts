@@ -1,50 +1,39 @@
 import {
-  createRef,
+  css,
   defineCustomElement,
   FC,
   html,
-  innerHTML,
   observable,
-  onMounted,
-  ref,
   render,
-  repeat,
 } from '@/index';
 
-const MyTest: FC<{}, HTMLElement> = props => {
+const incrementBtn = css`
+  color: green;
+`;
+const decrementBtn = css`
+  color: red;
+`;
+
+const Counter: FC = () => {
   const state = observable({ count: 0 });
-  const divRef = createRef<HTMLDivElement>();
-  const list: Array<{ name: string }> = [
-    { name: 'a' },
-    { name: 'b' },
-    { name: 'c' },
-  ];
-
-  onMounted(() => {
-    console.log('divRef', divRef);
-  });
-
-  setInterval(() => {
-    state.count++;
-  }, 1000);
 
   return () => html`
-    <div foo="${state.count}" bar=${state.count}>${state.count}</div>
-    <div ${ref(divRef)}>${innerHTML('<span>innerHTML</span>')}</div>
-    <div>
-      ${repeat(
-        list,
-        v => v.name,
-        v => v.name
-      )}
-    </div>
+    <div>Counter: ${state.count}</div>
+    <button class=${incrementBtn} @click=${() => state.count++}>
+      Increment
+    </button>
+    <button class=${decrementBtn} @click=${() => state.count--}>
+      Decrement
+    </button>
   `;
 };
 
-defineCustomElement('my-test', {
-  render: MyTest,
+const App: FC<{}, HTMLElement> = () => {
+  return () => html`<${Counter} />`;
+};
+
+defineCustomElement('my-app', {
+  render: App,
 });
 
-const app = () => html`<my-test />`;
-
-render(document.body, app());
+render(document.body, html`<my-app></my-app>`);
