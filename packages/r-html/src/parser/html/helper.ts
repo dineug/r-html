@@ -57,7 +57,9 @@ const createAdd =
   (target: VNode) =>
   (value: First<VNode[K]> | null) => {
     if (!value) return;
-    target[prop] ? target[prop]?.push(value) : (target[prop] = [value]);
+    target[prop]
+      ? target[prop]?.push(value as unknown as any)
+      : (target[prop] = [value]);
   };
 
 export const addAttr = createAdd('attrs');
