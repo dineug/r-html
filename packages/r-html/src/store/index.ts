@@ -6,16 +6,17 @@ import { observable, Unsubscribe } from '@/observable';
 export type Action<K extends keyof M, M> = {
   type: K;
   payload: M[K];
-  timestamp: number;
 };
 export type AnyAction<P = any> = {
   type: string;
   payload: P;
-  timestamp: number;
 };
 
 export type GeneratorAction<T = AnyAction> = Generator<
-  T | GeneratorAction<T> | GeneratorActionCreator<T>
+  | T
+  | GeneratorAction<T>
+  | GeneratorActionCreator<T>
+  | Array<T | GeneratorAction<T> | GeneratorActionCreator<T>>
 >;
 export type GeneratorActionCreator<T = AnyAction, S = any, C = any> = (
   state: S,
@@ -24,7 +25,8 @@ export type GeneratorActionCreator<T = AnyAction, S = any, C = any> = (
 export type CompositionAction =
   | AnyAction
   | GeneratorAction
-  | GeneratorActionCreator;
+  | GeneratorActionCreator
+  | Array<CompositionAction>;
 export type CompositionActions = Array<CompositionAction>;
 
 export type Reducer<S, K extends keyof M, M, C = {}> = (
@@ -62,7 +64,6 @@ export function createAction<P = void>(type: string) {
     return {
       type,
       payload,
-      timestamp: Date.now(),
     };
   }
 
