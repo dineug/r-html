@@ -33,6 +33,7 @@ import { TAttr, TNode } from '@/template/tNode';
 export type Props<T = {}> = T & { children?: DocumentFragment };
 export type Context<T = {}> = T & {
   host: HTMLElement;
+  parentElement: HTMLElement | null;
   dispatchEvent(event: Event): boolean;
 };
 export type Template = () => any;
@@ -81,8 +82,12 @@ export class ObservableComponentPart implements Part {
   }
 
   createContext(): Context {
+    const startNode = this.#startNode;
     const ctx: Context = {
       host: document.body,
+      get parentElement() {
+        return startNode.parentElement;
+      },
       dispatchEvent: (event: Event) => this.#eventBus.dispatchEvent(event),
     };
     const rootNode = this.#startNode.getRootNode();

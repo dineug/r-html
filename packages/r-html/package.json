@@ -1,6 +1,6 @@
 {
   "name": "@dineug/r-html",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Tagged templates framework",
   "main": "dist/r-html.js",
   "module": "dist/r-html.esm.js",

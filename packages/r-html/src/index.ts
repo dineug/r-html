@@ -1,3 +1,6 @@
+export { createContext } from '@/context/createContext';
+export { useContext } from '@/context/useContext';
+export { useProvider } from '@/context/useProvider';
 export { observable, observer, watch } from '@/observable';
 export { nextTick } from '@/observable/scheduler';
 export { reduxDevtools } from '@/reduxDevtools';
@@ -22,8 +25,6 @@ export type {
   FunctionalComponent,
 } from '@/render/part/node/component/observableComponent';
 export { defineCustomElement } from '@/render/part/node/component/webComponent';
-export type { ProviderElement } from '@/render/part/node/component/webComponent/context';
-export { getContext } from '@/render/part/node/component/webComponent/context';
 export {
   closestElement,
   queryShadowSelector,
