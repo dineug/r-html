@@ -8,9 +8,11 @@ export interface Options {
   exclude?: string | RegExp | Array<string | RegExp>;
 }
 
+const importMetaHot = `${'import'}.${'meta'}.${'hot'}`;
+
 const hmr = (name: string) => `
-if (import.meta.hot) {
-  import.meta.hot.accept((mod) => {
+if (${importMetaHot}) {
+  ${importMetaHot}.accept((mod) => {
     window.dispatchEvent(new CustomEvent('hmr:r-html', {
       detail: {originComponent: ${name}, newComponent: mod?.default}
     }));

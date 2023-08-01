@@ -2,13 +2,18 @@
   "name": "@dineug/r-html",
   "version": "0.1.3",
   "description": "Tagged templates framework",
-  "main": "dist/r-html.js",
-  "module": "dist/r-html.esm.js",
-  "browser": "dist/r-html.min.js",
-  "typings": "types/index.d.ts",
+  "main": "./dist/r-html.umd.js",
+  "module": "./dist/r-html.mjs",
+  "typings": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/r-html.mjs",
+      "require": "./dist/r-html.umd.js"
+    }
+  },
   "files": [
     "dist/*.js",
-    "types"
+    "dist/**/*.ts"
   ],
   "repository": {
     "type": "git",
@@ -22,16 +27,12 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "rollup -c"
+    "build": "vite build"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "rollup": "^3.18.0",
-    "rollup-plugin-filesize": "^10.0.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.34.1",
+    "@rollup/plugin-typescript": "^11.1.2",
     "rollup-plugin-visualizer": "^5.9.0",
+    "tslib": "^2.5.0",
     "ttypescript": "^1.5.15",
     "typescript": "4.9.5",
     "typescript-transform-paths": "^3.4.6",

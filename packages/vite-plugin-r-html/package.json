@@ -2,11 +2,11 @@
   "name": "@dineug/vite-plugin-r-html",
   "version": "0.1.0",
   "description": "vite r-html hmr plugin",
-  "main": "dist/vite-plugin-r-html.js",
-  "typings": "types/index.d.ts",
+  "main": "./dist/vite-plugin-r-html.js",
+  "typings": "./dist/index.d.ts",
   "files": [
     "dist/*.js",
-    "types"
+    "dist/**/*.ts"
   ],
   "repository": {
     "type": "git",
@@ -19,24 +19,19 @@
   "author": "SeungHwan-Lee <dineug2@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c"
+    "build": "vite build"
   },
   "dependencies": {
     "@babel/core": "^7.21.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^11.1.2",
     "@rollup/pluginutils": "^5.0.2",
-    "rollup": "^3.18.0",
-    "rollup-plugin-filesize": "^10.0.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "^0.34.1",
     "rollup-plugin-visualizer": "^5.9.0",
     "ttypescript": "^1.5.15",
     "typescript": "4.9.5",
     "typescript-transform-paths": "^3.4.6",
-    "vite": "^4.1.4"
+    "vite": "^4.1.4",
+    "vite-tsconfig-paths": "^4.0.5"
   }
 }

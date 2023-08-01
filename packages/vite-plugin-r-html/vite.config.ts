@@ -18,16 +18,18 @@ const banner = `/*!
 
 export default defineConfig({
   build: {
+    minify: false,
     lib: {
       entry: './src/index.ts',
       name: pkg.name,
-      fileName: 'r-html',
-      formats: ['es', 'umd'],
+      fileName: 'vite-plugin-r-html',
+      formats: ['cjs'],
     },
     rollupOptions: {
       output: {
         banner,
       },
+      external: ['@babel/core', 'path'],
     },
   },
   plugins: [
