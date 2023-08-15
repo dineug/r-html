@@ -2,13 +2,14 @@
   "name": "@dineug/r-html",
   "version": "0.1.3",
   "description": "Tagged templates framework",
-  "main": "./dist/r-html.umd.js",
-  "module": "./dist/r-html.mjs",
+  "type": "module",
+  "main": "./dist/r-html.umd.cjs",
+  "module": "./dist/r-html.js",
   "typings": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/r-html.mjs",
-      "require": "./dist/r-html.umd.js"
+      "import": "./dist/r-html.js",
+      "require": "./dist/r-html.umd.cjs"
     }
   },
   "files": [
