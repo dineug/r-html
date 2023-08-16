@@ -5,10 +5,13 @@
   "type": "module",
   "main": "./dist/r-html.umd.cjs",
   "module": "./dist/r-html.js",
-  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/r-html.js",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/r-html.js"
+      },
       "require": "./dist/r-html.umd.cjs"
     }
   },

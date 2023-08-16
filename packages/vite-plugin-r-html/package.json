@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "vite r-html hmr plugin",
   "main": "./dist/vite-plugin-r-html.js",
-  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist/*.js",
     "dist/**/*.ts"
