@@ -1,5 +1,4 @@
 import { TEMPLATE_LITERALS } from '@/constants';
-import { isUndefined } from '@/helpers/is-type';
 import { cssParser } from '@/parser';
 import {
   CSSTemplate,

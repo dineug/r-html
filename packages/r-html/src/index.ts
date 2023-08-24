@@ -1,4 +1,4 @@
-export { createContext } from '@/context/createContext';
+export { type Context, createContext } from '@/context/createContext';
 export { useContext } from '@/context/useContext';
 export { useProvider } from '@/context/useProvider';
 export { observable, observer, watch } from '@/observable';
@@ -42,6 +42,7 @@ export type {
   Store,
 } from '@/store';
 export { compositionActionsFlat, createAction, createStore } from '@/store';
+export type { CSSTemplateLiterals, DOMTemplateLiterals } from '@/template';
 export { css } from '@/template/css';
 export { html, svg } from '@/template/html';
 export { addCSSHost, removeCSSHost } from '@/template/vCSSStyleSheet';
