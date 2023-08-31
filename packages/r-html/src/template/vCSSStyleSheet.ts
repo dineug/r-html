@@ -1,4 +1,3 @@
-import { supportsAdoptingStyleSheets } from '@/render/part/node/component/webComponent/styleSheets';
 import { RCNode } from '@/template/rcNode';
 import { TCNode } from '@/template/tcNode';
 
@@ -24,6 +23,15 @@ const CSS_SHARED_CONTEXT = Symbol.for(
 );
 
 const globalContext = globalThis ?? window;
+
+let supportsAdoptingStyleSheets =
+  window.ShadowRoot &&
+  'adoptedStyleSheets' in Document.prototype &&
+  'replace' in CSSStyleSheet.prototype;
+
+export function cssUnwrap() {
+  supportsAdoptingStyleSheets = false;
+}
 
 function getCSSSharedContext(): CSSSharedContext {
   const ctx: CSSSharedContext | null =
@@ -104,7 +112,7 @@ function updateStyleElements() {
           vSheets.push(vCSSStyleSheet);
 
           return vCSSStyleSheet.styleElement
-            ? document.importNode(vCSSStyleSheet.styleElement)
+            ? document.importNode(vCSSStyleSheet.styleElement, true)
             : null;
         })
         .filter(Boolean) as HTMLStyleElement[];
