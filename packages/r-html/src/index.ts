@@ -45,4 +45,8 @@ export { compositionActionsFlat, createAction, createStore } from '@/store';
 export type { CSSTemplateLiterals, DOMTemplateLiterals } from '@/template';
 export { css } from '@/template/css';
 export { html, svg } from '@/template/html';
-export { addCSSHost, removeCSSHost } from '@/template/vCSSStyleSheet';
+export {
+  addCSSHost,
+  cssUnwrap,
+  removeCSSHost,
+} from '@/template/vCSSStyleSheet';
