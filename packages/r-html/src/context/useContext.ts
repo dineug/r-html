@@ -1,4 +1,5 @@
-import { createRef } from '@/render/directives/attribute';
+import { observable } from '@/observable';
+import { Ref } from '@/render/directives/attribute';
 import { onBeforeMount, onUnmounted } from '@/render/part/node/component/hooks';
 import { Context as Ctx } from '@/render/part/node/component/observableComponent';
 
@@ -13,7 +14,7 @@ export function useContext<T>(
   ctx: Ctx<HTMLElement> | Ctx<{}>,
   context: Context<T>
 ) {
-  const ref = createRef<T>(context.value);
+  const ref: Ref<T> = observable({ value: context.value }, { shallow: true });
 
   const observer = (value: T) => {
     ref.value = value;
