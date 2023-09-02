@@ -2,7 +2,7 @@ import { ContainerPart } from '@/render/part/container';
 import { TemplateLiterals } from '@/template';
 import { isTemplateLiterals } from '@/template/helper';
 
-export type Container = Element | ShadowRoot;
+export type Container = Element | ShadowRoot | DocumentFragment;
 
 const renderCache = new WeakMap<Container, ContainerPart>();
 
