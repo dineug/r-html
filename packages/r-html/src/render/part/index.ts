@@ -54,8 +54,7 @@ export function createTemplate(
   tNode: TNode,
   isSvg = false
 ): [DocumentFragment, Array<Part>] {
-  const template = document.createElement('template');
-  const fragment = template.content;
+  const fragment = document.createDocumentFragment();
   const parts = createElement(tNode.children, fragment, isSvg);
   return [fragment, parts];
 }
