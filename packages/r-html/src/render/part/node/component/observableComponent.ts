@@ -30,7 +30,7 @@ import {
 import { getMarkers, MarkerTuple } from '@/template/helper';
 import { TAttr, TNode } from '@/template/tNode';
 
-export type Props<T = {}> = T & { children?: DocumentFragment };
+export type Props<T = {}> = T;
 export type Context<T = {}> = T & {
   host: HTMLElement;
   parentElement: HTMLElement | null;
@@ -126,11 +126,12 @@ export class ObservableComponentPart implements Part {
       );
     }
 
-    if (this.#tNode.children) {
-      const [fragment, parts] = createTemplate(this.#tNode);
-      Reflect.set(this.#props, 'children', fragment);
-      this.#parts.push(...parts);
-    }
+    // TODO: slot
+    // if (this.#tNode.children) {
+    //   const [fragment, parts] = createTemplate(this.#tNode);
+    //   Reflect.set(this.#props, 'children', fragment);
+    //   this.#parts.push(...parts);
+    // }
 
     lifecycleHooks(this, BEFORE_MOUNT);
 
