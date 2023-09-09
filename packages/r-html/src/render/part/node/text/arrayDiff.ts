@@ -6,77 +6,120 @@ export enum Action {
   move = 'move',
 }
 
-interface DiffItem {
+export type DiffItem = {
   type: PartType;
   key: any;
-}
+};
 
-interface Position {
+type Position = {
   from: number;
   to: number;
-}
+};
 
-interface Diff {
+type Diff = {
   update: Array<Position & { action: Action }>;
   delete: Array<Pick<Position, 'from'>>;
-}
+};
 
-export const partsToDiffItems = (parts: ItemPart[]): DiffItem[] =>
-  parts.map(({ type, value }) => ({
-    type,
-    key: type === PartType.templateLiterals ? value.strings : value,
-  }));
+export type DiffValue = {
+  items: DiffItem[];
+  itemToIndex: Map<DiffItem, number>;
+};
 
-export const valuesToDiffItems = (values: any[]): DiffItem[] =>
-  values.map(value => {
-    const type = getPartType(value);
-    return {
+export function partsToDiffItems(parts: ItemPart[]): DiffValue {
+  const items: DiffItem[] = [];
+  const itemToIndex = new Map<DiffItem, number>();
+
+  parts.forEach(({ type, value }, index) => {
+    const item = {
       type,
       key: type === PartType.templateLiterals ? value.strings : value,
     };
+
+    items.push(item);
+    itemToIndex.set(item, index);
   });
 
-export function difference(oldItems: DiffItem[], newItems: DiffItem[]) {
+  return {
+    items,
+    itemToIndex,
+  };
+}
+
+export function valuesToDiffItems(values: any[]): DiffValue {
+  const items: DiffItem[] = [];
+  const itemToIndex = new Map<DiffItem, number>();
+
+  values.forEach((value, index) => {
+    const type = getPartType(value);
+    const item = {
+      type,
+      key: type === PartType.templateLiterals ? value.strings : value,
+    };
+
+    items.push(item);
+    itemToIndex.set(item, index);
+  });
+
+  return {
+    items,
+    itemToIndex,
+  };
+}
+
+export function difference(oldDiffValue: DiffValue, newDiffValue: DiffValue) {
   const diff: Diff = {
     update: [],
     delete: [],
   };
-  const create: Array<Pick<Position, 'to'>> = [];
-  const move: Position[] = [];
+  const move = new Set<number>();
   const updateOldItems: DiffItem[] = [];
+
+  const oldItems = oldDiffValue.items;
+  const newItems = newDiffValue.items;
 
   oldItems.forEach((oldItem, from) => {
     const to = newItems.findIndex(
       (newItem, to) =>
         oldItem.type === newItem.type &&
         oldItem.key === newItem.key &&
-        !move.some(item => item.to === to)
+        !move.has(to)
     );
-    to === -1 ? updateOldItems.push(oldItem) : move.push({ from, to });
+
+    if (to === -1) {
+      updateOldItems.push(oldItem);
+    } else {
+      move.add(to);
+      diff.update.push({ action: Action.move, from, to });
+    }
   });
 
   updateOldItems.forEach(oldItem => {
-    const from = oldItems.indexOf(oldItem);
+    const from = oldDiffValue.itemToIndex.get(oldItem) as number;
     const toItem = newItems.find(
-      (newItem, to) =>
-        oldItem.type === newItem.type && !move.some(item => item.to === to)
+      (newItem, to) => oldItem.type === newItem.type && !move.has(to)
     );
-    toItem
-      ? move.push({
-          from,
-          to: newItems.indexOf(toItem),
-        })
-      : diff.delete.push({ from });
+
+    if (toItem) {
+      const to = newDiffValue.itemToIndex.get(toItem) as number;
+      move.add(to);
+      diff.update.push({ action: Action.move, from, to });
+    } else {
+      diff.delete.push({ from });
+    }
   });
 
-  newItems
-    .filter((_, to) => !move.some(item => item.to === to))
-    .forEach(newItem => create.push({ to: newItems.indexOf(newItem) }));
+  newItems.forEach((newItem, to) => {
+    if (move.has(to)) return;
 
-  diff.update = [
-    ...create.map(v => ({ action: Action.create, ...v, from: -1 })),
-    ...move.map(v => ({ action: Action.move, ...v })),
-  ].sort((a, b) => a.to - b.to);
+    diff.update.push({
+      action: Action.create,
+      from: -1,
+      to: newDiffValue.itemToIndex.get(newItem) as number,
+    });
+  });
+
+  diff.update.sort((a, b) => a.to - b.to);
 
   return diff;
 }

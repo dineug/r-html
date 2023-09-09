@@ -6,7 +6,12 @@ import {
   removeNode,
 } from '@/render/helper';
 import { Part } from '@/render/part';
-import { Action, difference } from '@/render/part/node/text/arrayDiff';
+import {
+  Action,
+  difference,
+  DiffItem,
+  DiffValue,
+} from '@/render/part/node/text/arrayDiff';
 import {
   createPart,
   getPartType,
@@ -36,14 +41,9 @@ export const repeat = createNodeDirective<RepeatFn>(
     };
 
     return ([list, getKey, getResult]) => {
-      const values = list.map((value, index, array) => ({
-        key: getKey(value),
-        value: getResult(value, index, array),
-      }));
-      const diff = difference(
-        parts.map(({ type, key }) => ({ type, key })),
-        values.map(({ key, value }) => ({ type: getPartType(value), key }))
-      );
+      const newDiffValue = valuesToDiffItems(list, getKey, getResult);
+      const values = newDiffValue.values;
+      const diff = difference(partsToDiffItems(parts), newDiffValue);
       const arrayLike: any = { length: values.length };
 
       diff.update.forEach(({ action, from, to }) => {
@@ -131,4 +131,49 @@ class ItemPart implements Part {
     this.startNode.remove();
     this.endNode.remove();
   }
+}
+
+function partsToDiffItems(parts: ItemPart[]): DiffValue {
+  const items: DiffItem[] = [];
+  const itemToIndex = new Map<DiffItem, number>();
+
+  parts.forEach(({ type, key }, index) => {
+    const item = { type, key };
+
+    items.push(item);
+    itemToIndex.set(item, index);
+  });
+
+  return {
+    items,
+    itemToIndex,
+  };
+}
+
+function valuesToDiffItems<T>(
+  list: T[],
+  getKey: (value: T) => any,
+  getResult: (value: T, index: number, array: T[]) => any
+): DiffValue & { values: Array<{ key: any; value: any }> } {
+  const items: DiffItem[] = [];
+  const itemToIndex = new Map<DiffItem, number>();
+  const values: Array<{ key: any; value: any }> = [];
+
+  list.forEach((value, index, array) => {
+    const newValue = {
+      key: getKey(value),
+      value: getResult(value, index, array),
+    };
+    const item = { type: getPartType(newValue.value), key: newValue.key };
+
+    values.push(newValue);
+    items.push(item);
+    itemToIndex.set(item, index);
+  });
+
+  return {
+    items,
+    itemToIndex,
+    values,
+  };
 }
