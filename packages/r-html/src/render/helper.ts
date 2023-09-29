@@ -122,6 +122,9 @@ export const noop = () => {};
 export const isHTMLElement = (value: any): value is HTMLElement =>
   value instanceof HTMLElement;
 
+export const isSvgElement = (value: any): value is SVGElement =>
+  value instanceof SVGElement;
+
 export const isPromise = (value: any): value is Promise<any> =>
   value instanceof Promise;
 

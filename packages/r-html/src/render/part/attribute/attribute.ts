@@ -10,6 +10,7 @@ import {
   equalValues,
   isEqualShallowObject,
   isHTMLElement,
+  isSvgElement,
 } from '@/render/helper';
 import { Part } from '@/render/part';
 import {
@@ -61,7 +62,10 @@ export class AttributePart implements Part {
   }
 
   classCommit(value: any) {
-    if (!isHTMLElement(this.#node) || (!isObject(value) && !isArray(value))) {
+    if (
+      (!isHTMLElement(this.#node) && !isSvgElement(this.#node)) ||
+      (!isObject(value) && !isArray(value))
+    ) {
       return;
     }
 
@@ -96,7 +100,7 @@ export class AttributePart implements Part {
   }
 
   styleCommit(value: any) {
-    if (!isHTMLElement(this.#node)) return;
+    if (!isHTMLElement(this.#node) && !isSvgElement(this.#node)) return;
 
     const prevValue = this.#values[this.#values.length - 1];
     if (isEqualShallowObject(prevValue, value)) {
@@ -113,7 +117,9 @@ export class AttributePart implements Part {
 
       Object.keys(current)
         .filter((key: any) => !originStyleRecord[key] && !styleRecord[key])
-        .forEach(key => (this.#node as HTMLElement).style.removeProperty(key));
+        .forEach(key =>
+          (this.#node as HTMLElement | SVGElement).style.removeProperty(key)
+        );
     }
 
     for (const key of Object.keys(styleRecord)) {
@@ -129,7 +135,7 @@ function safeToString(value: any) {
     : '';
 }
 
-function getStyleRecord(el: HTMLElement) {
+function getStyleRecord(el: HTMLElement | SVGElement) {
   const styleRecord: StyleRecord = {};
   for (let i = 0; i < el.style.length; i++) {
     const name = el.style.item(i);
