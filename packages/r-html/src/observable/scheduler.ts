@@ -16,7 +16,7 @@ interface Task {
   tickCount: number;
 }
 
-const EXPIRATION_TICK = 3;
+const EXPIRATION_TICK = 1;
 
 const queue: Task[] = [];
 const watchQueue = new Map<any, Array<PropName>>();
@@ -73,7 +73,7 @@ function runTask() {
 
 function isNextTaskExpires() {
   const task = queue[0];
-  return task ? EXPIRATION_TICK < tickCount - task.tickCount : false;
+  return task ? EXPIRATION_TICK <= tickCount - task.tickCount : false;
 }
 
 function executeIdle() {
@@ -102,8 +102,10 @@ function executeAsap() {
   tickCount = 0;
 }
 
+const isIdle = 'requestIdleCallback' in window;
+
 function execute() {
-  const exec = 'requestIdleCallback' in window ? executeIdle : executeAsap;
+  const exec = isIdle ? executeIdle : executeAsap;
   exec();
 }
 
