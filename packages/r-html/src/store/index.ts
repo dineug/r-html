@@ -6,10 +6,12 @@ import { observable, Unsubscribe } from '@/observable';
 export type Action<K extends keyof M, M> = {
   type: K;
   payload: M[K];
+  timestamp: number;
 };
 export type AnyAction<P = any> = {
   type: string;
   payload: P;
+  timestamp: number;
 };
 
 export type GeneratorAction<T = AnyAction> = Generator<
@@ -64,6 +66,7 @@ export function createAction<P = void>(type: string) {
     return {
       type,
       payload,
+      timestamp: Date.now(),
     };
   }
 
