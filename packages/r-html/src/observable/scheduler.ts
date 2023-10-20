@@ -19,7 +19,7 @@ interface Task {
 const EXPIRATION_TICK = 1;
 
 const queue: Task[] = [];
-const watchQueue = new Map<any, Array<PropName>>();
+const watchQueue = new Map<any, Set<PropName>>();
 const idleOptions = { timeout: 16 };
 
 let executable = true;
@@ -27,10 +27,12 @@ let tickCount = 0;
 
 function isTrigger(raw: any, p: PropName, observer: Observer) {
   const triggers = observerToTriggers.get(observer);
+  if (!triggers) return false;
 
-  return triggers
-    ? triggers.some(trigger => trigger.raw === raw && trigger.keys.includes(p))
-    : false;
+  const trigger = triggers.get(raw);
+  if (!trigger) return false;
+
+  return trigger.has(p);
 }
 
 const isQueue = (f: Observer | VoidFunction) =>
@@ -117,7 +119,7 @@ export function watchEffect(raw: any, p: PropName) {
   const trigger = watchQueue.get(proxy);
 
   if (!trigger) {
-    watchQueue.set(proxy, [p]);
+    watchQueue.set(proxy, new Set([p]));
 
     nextTick(() => {
       const trigger = watchQueue.get(proxy);
@@ -126,7 +128,7 @@ export function watchEffect(raw: any, p: PropName) {
       watchQueue.delete(proxy);
       trigger.forEach(propName => subject.next(propName));
     });
-  } else if (!trigger.includes(p)) {
-    trigger.push(p);
+  } else if (!trigger.has(p)) {
+    trigger.add(p);
   }
 }

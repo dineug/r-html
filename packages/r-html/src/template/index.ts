@@ -8,7 +8,9 @@ export enum TemplateLiteralsType {
   css = 'css',
 }
 
-export const TemplateLiteralsTypes = Object.values(TemplateLiteralsType);
+export const TemplateLiteralsTypes = new Set(
+  Object.values(TemplateLiteralsType)
+);
 
 interface TL {
   strings: TemplateStringsArray;

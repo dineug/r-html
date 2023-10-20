@@ -8,17 +8,13 @@ export type Subject<T> = {
 };
 
 export function createSubject<T>(): Subject<T> {
-  const observers: Array<Observer<T>> = [];
+  const observers = new Set<Observer<T>>();
 
   const subscribe = (fn: Observer<T>) => {
-    observers.includes(fn) || observers.push(fn);
+    observers.has(fn) || observers.add(fn);
 
     return () => {
-      observers.includes(fn) &&
-        observers.splice(
-          observers.findIndex(v => v === fn),
-          1
-        );
+      observers.delete(fn);
     };
   };
 

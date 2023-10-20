@@ -3,14 +3,15 @@ import { TCNode } from '@/template/tcNode';
 
 interface VCSSStyleSheet {
   selector: string;
+  cssText: string;
   style: string;
   sheet: CSSStyleSheet | null;
   styleElement: HTMLStyleElement | null;
 }
 
 interface HostContext {
-  vSheets: VCSSStyleSheet[];
-  styleElements: HTMLStyleElement[];
+  vSheets: Set<VCSSStyleSheet>;
+  styleElements: Set<HTMLStyleElement>;
 }
 
 interface CSSSharedContext {
@@ -19,7 +20,7 @@ interface CSSSharedContext {
 }
 
 const CSS_SHARED_CONTEXT = Symbol.for(
-  'https://github.com/dineug/r-html#cssSharedContext'
+  'https://github.com/dineug/r-html#cssSharedContext_v2'
 );
 
 const globalContext = globalThis ?? window;
@@ -30,7 +31,21 @@ let supportsAdoptingStyleSheets =
   'replace' in CSSStyleSheet.prototype;
 
 export function cssUnwrap() {
+  if (!supportsAdoptingStyleSheets) {
+    return;
+  }
+
   supportsAdoptingStyleSheets = false;
+  const ctx = getCSSSharedContext();
+  const vCSSStyleSheets = ctx.vCSSStyleSheetMap.values();
+  for (const vCSSStyleSheet of vCSSStyleSheets) {
+    if (!vCSSStyleSheet.styleElement) {
+      const styleElement = document.createElement('style');
+      styleElement.textContent = vCSSStyleSheet.cssText;
+      vCSSStyleSheet.styleElement = styleElement;
+    }
+  }
+  updateSheets();
 }
 
 function getCSSSharedContext(): CSSSharedContext {
@@ -75,6 +90,7 @@ export function vRender(node: TCNode, values: any[]): string {
 
     ctx.vCSSStyleSheetMap.set(selector, {
       selector,
+      cssText,
       style: node.style,
       sheet,
       styleElement,
@@ -107,9 +123,9 @@ function updateStyleElements() {
   Array.from(ctx.hostContextMap).forEach(
     ([host, { vSheets, styleElements }]) => {
       const newStyleElements = Array.from(ctx.vCSSStyleSheetMap)
-        .filter(([, vCSSStyleSheet]) => !vSheets.includes(vCSSStyleSheet))
+        .filter(([, vCSSStyleSheet]) => !vSheets.has(vCSSStyleSheet))
         .map(([, vCSSStyleSheet]) => {
-          vSheets.push(vCSSStyleSheet);
+          vSheets.add(vCSSStyleSheet);
 
           return vCSSStyleSheet.styleElement
             ? document.importNode(vCSSStyleSheet.styleElement, true)
@@ -120,9 +136,8 @@ function updateStyleElements() {
       newStyleElements.forEach(styleElement => {
         const target = host instanceof Document ? host.head : host;
         target.appendChild(styleElement);
+        styleElements.add(styleElement);
       });
-
-      styleElements.push(...newStyleElements);
     }
   );
 }
@@ -134,8 +149,8 @@ export function addCSSHost(host: Document | ShadowRoot) {
   }
 
   ctx.hostContextMap.set(host, {
-    vSheets: [],
-    styleElements: [],
+    vSheets: new Set(),
+    styleElements: new Set(),
   });
   updateSheets();
 }
