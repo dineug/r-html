@@ -33,7 +33,7 @@ export type CompositionActions = Array<CompositionAction>;
 
 export type Reducer<S, K extends keyof M, M, C = {}> = (
   state: S,
-  payload: Action<K, M>['payload'],
+  action: Action<K, M>,
   ctx: C
 ) => void;
 
@@ -126,7 +126,7 @@ export function createStore<S, M, C = {}>({
 
   const runReducer = (action: AnyAction) => {
     const reducer = Reflect.get(reducers, action.type, reducers);
-    safeCallback(reducer as any, state, action.payload, context);
+    safeCallback(reducer as any, state, action, context);
   };
 
   const dispatchSync = (...compositionActions: CompositionActions) => {
