@@ -11,16 +11,14 @@ export type ObservableOptions = {
   shallow: boolean;
 };
 
-interface Trigger {
-  raw: any;
-  keys: PropName[];
-}
-
 export const rawToProxy = new WeakMap();
-export const rawToObservers = new WeakMap<object, Array<Observer>>();
+export const rawToObservers = new WeakMap<object, Set<Observer>>();
 const proxyToRaw = new WeakMap();
 export const proxyToSubject = new WeakMap<object, Subject<PropName>>();
-export const observerToTriggers = new WeakMap<Observer, Array<Trigger>>();
+export const observerToTriggers = new WeakMap<
+  Observer,
+  Map<any, Set<PropName>>
+>();
 
 const defaultObservableOptions: ObservableOptions = { shallow: false };
 
@@ -37,13 +35,12 @@ export function observer(f: Observer): Unsubscribe {
 export function unobserve(observer: Observer) {
   const triggers = observerToTriggers.get(observer);
 
-  triggers?.forEach(({ raw }) => {
-    const observers = rawToObservers.get(raw);
-
-    observers &&
-      observers.includes(observer) &&
-      observers.splice(observers.indexOf(observer), 1);
-  });
+  if (triggers) {
+    for (const [raw] of triggers.entries()) {
+      const observers = rawToObservers.get(raw);
+      observers?.delete(observer);
+    }
+  }
 
   triggers && observerToTriggers.delete(observer);
 }
@@ -54,9 +51,9 @@ function addObserver(raw: any) {
   const observers = rawToObservers.get(raw);
 
   if (!observers) {
-    rawToObservers.set(raw, [currentObserver]);
-  } else if (!observers.includes(currentObserver)) {
-    observers.push(currentObserver);
+    rawToObservers.set(raw, new Set([currentObserver]));
+  } else if (!observers.has(currentObserver)) {
+    observers.add(currentObserver);
   }
 }
 
@@ -66,15 +63,15 @@ function addTrigger(raw: any, p: PropName) {
   const triggers = observerToTriggers.get(currentObserver);
 
   if (triggers) {
-    const trigger = triggers.find(trigger => trigger.raw === raw);
+    const trigger = triggers.get(raw);
 
     if (!trigger) {
-      triggers.push({ raw, keys: [p] });
-    } else if (!trigger.keys.includes(p)) {
-      trigger.keys.push(p);
+      triggers.set(raw, new Set([p]));
+    } else if (!trigger.has(p)) {
+      trigger.add(p);
     }
   } else {
-    observerToTriggers.set(currentObserver, [{ raw, keys: [p] }]);
+    observerToTriggers.set(currentObserver, new Map([[raw, new Set([p])]]));
   }
 }
 

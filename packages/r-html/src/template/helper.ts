@@ -21,7 +21,7 @@ import { TAttr } from '@/template/tNode';
 
 export type MarkerTuple = [string, number];
 
-const svgTypes = [TemplateLiteralsType.svg];
+const svgTypes = new Set([TemplateLiteralsType.svg]);
 
 export const createMarker = (index: number) => `${MARKER}_${index}_`;
 
@@ -34,7 +34,7 @@ export const isTemplateLiterals = (value: any): value is TemplateLiterals =>
   isObject(value) &&
   isTemplateStringsArray(value.strings) &&
   isArray(value.values) &&
-  TemplateLiteralsTypes.includes(Reflect.get(value, TEMPLATE_LITERALS) ?? '');
+  TemplateLiteralsTypes.has(Reflect.get(value, TEMPLATE_LITERALS) ?? '');
 
 export const isCSSTemplateLiterals = (
   value: any
@@ -61,7 +61,7 @@ export const isMarkerOnly = (value?: string | null) =>
   isMarker(value) && markerOnlyRegexp.test(value?.trim() ?? '');
 export const isPartAttr = ({ type, value }: TAttr) =>
   type === TAttrType.spread || type === TAttrType.directive || isMarker(value);
-export const isSVG = (type: TemplateLiteralsType) => svgTypes.includes(type);
+export const isSVG = (type: TemplateLiteralsType) => svgTypes.has(type);
 
 export const getAttrType = (value: string): TAttrType =>
   isMarkerOnly(value)
