@@ -123,6 +123,14 @@ export function observable<T>(
 
       return res;
     },
+    deleteProperty(target, p) {
+      const res = Reflect.deleteProperty(target, p);
+
+      effect(target, p);
+      watchEffect(target, p);
+
+      return res;
+    },
   });
 
   rawToProxy.set(raw as any, proxy);
