@@ -104,8 +104,7 @@ function executeAsap() {
   tickCount = 0;
 }
 
-// const isIdle = 'requestIdleCallback' in window;
-const isIdle = false;
+const isIdle = 'requestIdleCallback' in window;
 
 function execute() {
   const exec = isIdle ? executeIdle : executeAsap;

@@ -16,14 +16,13 @@ interface HostContext {
 
 interface CSSSharedContext {
   vCSSStyleSheetMap: Map<string, VCSSStyleSheet>;
-  hostContextMap: Map<Document | ShadowRoot, HostContext>;
+  hostContextMap: Map<ShadowRoot, HostContext>;
 }
 
-const CSS_SHARED_CONTEXT = Symbol.for(
-  'https://github.com/dineug/r-html#cssSharedContext_v2'
-);
-
-const globalContext = globalThis ?? window;
+const cssSharedContext: CSSSharedContext = {
+  vCSSStyleSheetMap: new Map(),
+  hostContextMap: new Map(),
+};
 
 let supportsAdoptingStyleSheets =
   window.ShadowRoot &&
@@ -49,17 +48,7 @@ export function cssUnwrap() {
 }
 
 function getCSSSharedContext(): CSSSharedContext {
-  const ctx: CSSSharedContext | null =
-    Reflect.get(globalContext, CSS_SHARED_CONTEXT) ?? null;
-  if (ctx) return ctx;
-
-  const newCtx: CSSSharedContext = {
-    vCSSStyleSheetMap: new Map(),
-    hostContextMap: new Map(),
-  };
-
-  Reflect.set(globalContext, CSS_SHARED_CONTEXT, newCtx);
-  return newCtx;
+  return cssSharedContext;
 }
 
 export function vRender(node: TCNode, values: any[]): string {
@@ -134,15 +123,14 @@ function updateStyleElements() {
         .filter(Boolean) as HTMLStyleElement[];
 
       newStyleElements.forEach(styleElement => {
-        const target = host instanceof Document ? host.head : host;
-        target.appendChild(styleElement);
+        host.appendChild(styleElement);
         styleElements.add(styleElement);
       });
     }
   );
 }
 
-export function addCSSHost(host: Document | ShadowRoot) {
+export function addCSSHost(host: ShadowRoot) {
   const ctx = getCSSSharedContext();
   if (ctx.hostContextMap.has(host)) {
     return;
@@ -155,7 +143,7 @@ export function addCSSHost(host: Document | ShadowRoot) {
   updateSheets();
 }
 
-export function removeCSSHost(host: Document | ShadowRoot) {
+export function removeCSSHost(host: ShadowRoot) {
   const ctx = getCSSSharedContext();
   const hostContext = ctx.hostContextMap.get(host);
   if (!hostContext) {
@@ -165,9 +153,8 @@ export function removeCSSHost(host: Document | ShadowRoot) {
   if (supportsAdoptingStyleSheets) {
     host.adoptedStyleSheets = [];
   } else {
-    const target = host instanceof Document ? host.head : host;
     hostContext.styleElements.forEach(styleElement =>
-      target.removeChild(styleElement)
+      host.removeChild(styleElement)
     );
   }
 
