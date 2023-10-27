@@ -10,15 +10,20 @@ import {
   unobserve,
 } from '@/observable';
 
+type AsyncFunction = () => Promise<void>;
+
 interface Task {
   type: 'observer' | 'nextTick';
-  fn: Observer | VoidFunction;
   tickCount: number;
+  promise: Promise<void>;
+  fn: Observer | VoidFunction | AsyncFunction;
+  resolve: () => void;
 }
 
 const EXPIRATION_TICK = 1;
 
 const queue: Task[] = [];
+const queueMap = new Map<Observer | VoidFunction, Task>();
 const watchQueue = new Map<any, Set<PropName>>();
 const idleOptions = { timeout: 16 };
 
@@ -35,17 +40,39 @@ function isTrigger(raw: any, p: PropName, observer: Observer) {
   return trigger.has(p);
 }
 
-const isQueue = (f: Observer | VoidFunction) =>
-  Boolean(queue.find(({ fn }) => fn === f));
+const createNextTick =
+  (type: Task['type']) => (fn: Observer | VoidFunction | AsyncFunction) => {
+    const prevTask = queueMap.get(fn);
 
-const createNextTick = (type: Task['type']) => (fn: VoidFunction) => {
-  isQueue(fn) || queue.push({ type, fn, tickCount });
+    let next = () => {};
+    const promise = prevTask?.promise
+      ? prevTask.promise
+      : new Promise<void>(resolve => {
+          next = resolve;
+        });
 
-  if (executable) {
-    asap(execute);
-    executable = false;
-  }
-};
+    if (!prevTask) {
+      const task: Task = {
+        type,
+        tickCount,
+        promise,
+        fn,
+        resolve: () => {
+          next();
+        },
+      };
+
+      queue.push(task);
+      queueMap.set(fn, task);
+    }
+
+    if (executable) {
+      asap(execute);
+      executable = false;
+    }
+
+    return promise;
+  };
 
 const observerNextTick = createNextTick('observer');
 export const nextTick = createNextTick('nextTick');
@@ -61,11 +88,15 @@ function runTask() {
   const task = queue.shift();
   if (!task) return;
 
+  queueMap.delete(task.fn);
+
   if (task.type === 'observer') {
     unobserve(task.fn);
     observer(task.fn);
+    task.resolve();
   } else if (task.type === 'nextTick') {
-    safeCallback(task.fn);
+    const result = safeCallback(task.fn);
+    result instanceof Promise ? result.finally(task.resolve) : task.resolve();
   }
 
   if (isNextTaskExpires()) {
