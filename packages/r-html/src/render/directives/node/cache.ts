@@ -1,6 +1,7 @@
 import { fragmentContextBridge } from '@/context/createContext';
 import { createNodeDirective } from '@/render/directives/nodeDirective';
 import { insertBeforeNode, rangeNodes, removeNode } from '@/render/helper';
+import { fragmentHostBridge } from '@/render/host';
 import { Part } from '@/render/part';
 import { createPart, getPartType } from '@/render/part/node/text/helper';
 import { isTemplateLiterals } from '@/template/helper';
@@ -35,13 +36,15 @@ export const cache = createNodeDirective(
       const type = getPartType(value);
       const part = createPart(type, startNode, endNode);
       const fragment = document.createDocumentFragment();
-      const bridgeDestroy = fragmentContextBridge(rootNode, fragment);
+      const contextBridgeDestroy = fragmentContextBridge(fragment, rootNode);
+      const hostBridgeDestroy = fragmentHostBridge(fragment, rootNode);
 
       return {
         part,
         fragment,
         destroy: () => {
-          bridgeDestroy();
+          contextBridgeDestroy();
+          hostBridgeDestroy();
           part.destroy?.();
         },
       };

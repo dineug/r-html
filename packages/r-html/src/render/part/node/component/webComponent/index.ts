@@ -51,7 +51,7 @@ export function defineCustomElement<P = {}, C = HTMLElement>(
     #unsubscribe: Callback | null = null;
     #renderRoot: ShadowRoot | HTMLElement = this;
     #template: Template;
-    host: HTMLElement = document.body;
+    host: HTMLElement = this;
 
     constructor() {
       super();

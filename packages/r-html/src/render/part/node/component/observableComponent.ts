@@ -12,6 +12,7 @@ import { isFunction } from '@/helpers/is-type';
 import { observable, observer, Unsubscribe } from '@/observable';
 import { rangeNodes, removeNode, setProps } from '@/render/helper';
 import { hotReloadObservable } from '@/render/hmr';
+import { getFragmentHost } from '@/render/host';
 import { createTemplate, Part } from '@/render/part';
 import { DirectivePart } from '@/render/part/attribute/directive';
 import { EventPart } from '@/render/part/attribute/event';
@@ -95,6 +96,11 @@ export class ObservableComponentPart implements Part {
     if (rootNode instanceof ShadowRoot) {
       const host = rootNode.host as HTMLElement;
       ctx.host = host;
+    } else if (rootNode instanceof DocumentFragment) {
+      const host = getFragmentHost(rootNode);
+      if (host) {
+        ctx.host = host;
+      }
     }
 
     return ctx;
