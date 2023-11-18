@@ -54,7 +54,7 @@ export const contextUnsubscribeEvent = createInternalEvent<
   ContextInternalEventMap[typeof ContextInternalEventType.unsubscribe]
 >(ContextInternalEventType.unsubscribe, { bubbles: true, composed: true });
 
-export function fragmentContextBridge(root: Node, fragment: DocumentFragment) {
+export function fragmentContextBridge(fragment: DocumentFragment, root: Node) {
   const handleSubscribe = (event: Event) => {
     const e = event as CustomEvent<ContextEventDetail>;
     root.dispatchEvent(contextSubscribeEvent(e.detail));
