@@ -5,9 +5,8 @@ import { Context as Ctx } from '@/render/part/node/component/observableComponent
 
 import {
   Context,
-  ContextEventDetail,
-  contextSubscribe,
-  contextUnsubscribe,
+  contextSubscribeEvent,
+  contextUnsubscribeEvent,
 } from './createContext';
 
 export function useContext<T>(
@@ -27,13 +26,9 @@ export function useContext<T>(
     const target = getTarget();
 
     target.dispatchEvent(
-      new CustomEvent<ContextEventDetail<T>>(contextSubscribe, {
-        bubbles: true,
-        composed: true,
-        detail: {
-          context,
-          observer,
-        },
+      contextSubscribeEvent({
+        context,
+        observer,
       })
     );
   };
@@ -45,13 +40,9 @@ export function useContext<T>(
     const target = getTarget();
 
     target.dispatchEvent(
-      new CustomEvent<ContextEventDetail<T>>(contextUnsubscribe, {
-        bubbles: true,
-        composed: true,
-        detail: {
-          context,
-          observer,
-        },
+      contextUnsubscribeEvent({
+        context,
+        observer,
       })
     );
   });
