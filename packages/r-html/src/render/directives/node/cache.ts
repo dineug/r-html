@@ -1,3 +1,4 @@
+import { fragmentContextBridge } from '@/context/createContext';
 import { createNodeDirective } from '@/render/directives/nodeDirective';
 import { insertBeforeNode, rangeNodes, removeNode } from '@/render/helper';
 import { Part } from '@/render/part';
@@ -7,11 +8,13 @@ import { isTemplateLiterals } from '@/template/helper';
 interface CachePart {
   part: Part;
   fragment: DocumentFragment;
+  destroy: () => void;
 }
 
 export const cache = createNodeDirective(
   (value: any) => value,
   ({ startNode, endNode }) => {
+    const rootNode = startNode.getRootNode();
     let cache = new Map<any, CachePart>();
     let prevValue: any = null;
 
@@ -31,15 +34,21 @@ export const cache = createNodeDirective(
     const create = (value: any): CachePart => {
       const type = getPartType(value);
       const part = createPart(type, startNode, endNode);
-      const template = document.createElement('template');
+      const fragment = document.createDocumentFragment();
+      const bridgeDestroy = fragmentContextBridge(rootNode, fragment);
+
       return {
         part,
-        fragment: template.content,
+        fragment,
+        destroy: () => {
+          bridgeDestroy();
+          part.destroy?.();
+        },
       };
     };
 
     const destroy = () => {
-      cache.forEach(({ part }) => part.destroy?.());
+      cache.forEach(({ destroy }) => destroy());
       cache = new Map();
       rangeNodes(startNode, endNode).forEach(removeNode);
     };

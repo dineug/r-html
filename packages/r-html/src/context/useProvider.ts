@@ -4,8 +4,8 @@ import { Context as Ctx } from '@/render/part/node/component/observableComponent
 import {
   Context,
   ContextEventDetail,
-  contextSubscribe,
-  contextUnsubscribe,
+  contextSubscribeEvent,
+  contextUnsubscribeEvent,
 } from './createContext';
 
 export function useProvider<T>(
@@ -42,16 +42,25 @@ export function useProvider<T>(
     }
   };
 
-  target.addEventListener(contextSubscribe, handleContextSubscribe);
-  target.addEventListener(contextUnsubscribe, handleContextUnsubscribe);
+  target.addEventListener(contextSubscribeEvent.type, handleContextSubscribe);
+  target.addEventListener(
+    contextUnsubscribeEvent.type,
+    handleContextUnsubscribe
+  );
 
   const set = (value: T) => {
     subject.next(value);
   };
 
   const destroy = () => {
-    target.removeEventListener(contextSubscribe, handleContextSubscribe);
-    target.removeEventListener(contextUnsubscribe, handleContextUnsubscribe);
+    target.removeEventListener(
+      contextSubscribeEvent.type,
+      handleContextSubscribe
+    );
+    target.removeEventListener(
+      contextUnsubscribeEvent.type,
+      handleContextUnsubscribe
+    );
     for (const unsubscribe of unsubscribeMap.values()) {
       unsubscribe();
     }
